@@ -1,4 +1,4 @@
-# GrandCanyonEmpCompare.r
+# GrandCanyonTempCompare.r
 #
 # Compare Colorado River temperatures in the Grand Canyon at different River Miles.
 # Data from Milhalevich et al (in review) - https://usu.box.com/s/ur2rme52rs36frcv94xtydiosmnp528v
