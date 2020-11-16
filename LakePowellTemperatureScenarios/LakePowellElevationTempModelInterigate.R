@@ -552,7 +552,7 @@ ggplot(data=dfPowellReleaseElev %>% filter(Day %in% seq(1,31, by=1)) %>% arrange
   theme(text = element_text(size=18), legend.text=element_text(size=16)) #,
         #legend.key = element_blank())
 
-ggsave("CompareReleaseElevationMonth.png", width=9, height = 6.5, units="in")
+ggsave("CompareReleaseWahweapElevationMonth.png", width=9, height = 6.5, units="in")
 
 
 #### Calculate range of temperature release for a specified Powell water surface elevation
