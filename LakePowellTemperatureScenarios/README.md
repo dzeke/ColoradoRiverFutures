@@ -13,6 +13,8 @@ Data, scripts, and script outputs that identify Lake Powell water surface elevat
 
 5. Lake Powell Temperature Profiles. Vernieu, W. S. (2015). "Historical Physical and Chemical Data for Water in Lake Powell and from Glen Canyon Dam Releases, Utah-Arizona, 1964 –2013." Data Series 471, Version 3.0. https://pubs.usgs.gov/ds/471/pdf/ds471.pdf. 'qryProfiles at Primary Stations.csv'.
 
+6. Lake Powell elevation zone definitions exported from the Colorado River Simulation System. PowellZones.xlsx
+
 ## Subfolders
 1. **TempDataBryce** - csv files of water temperature at several downstream Grand Canyon river mile locations. Data from Milhalevich et al (in press) - https://usu.box.com/s/ur2rme52rs36frcv94xtydiosmnp528v 
    + GrandCanyonTempCompare.r - R script that loads the data and produces plots.
