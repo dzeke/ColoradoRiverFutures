@@ -21,7 +21,7 @@
 # B. LAKEPOWELL06-16-2020T16.32.29.csv - USBR daily data of reservoir level/storage/release (https://www.usbr.gov/rsvrWater/HistoricalApp.html)
 # C. PowellLevels.xlsx - Definitions of reservoir zones and storage levels (from CRSS/Rosenberg)
 # D. GCD_release_water_temp.csv - Hourly values of Powell release temperature. Provided by Bryce M.
-# E. Fish temperature suitability data from Excel/Valdez et al (2013)
+# E. FishTemperatureRequirements.xlsx - Fish temperature suitability data from Excel/Valdez et al (2013)
 #
 # The data wrangling strategy is:
 # 1. Load all csv files

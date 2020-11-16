@@ -1,7 +1,7 @@
 ---
 title: "Lake Powell Water Surface Elevations for Release Temperature Scenarios"
 author: "David E. Rosenberg"
-date: "November 1, 2020"
+date: "November 16, 2020"
 header-includes:
 - \usepackage{lscape}
 - \newcommand{\blandscape}{\begin{landscape}}
@@ -19,13 +19,13 @@ This is an R Markdown document. This document identifies Lake Powell water surfa
 
 ## Citation
 
-Rosenberg, D. (2020). Lake Powell Water Surface Elevations for Release Temperature Scenarios. https://github.com/dzeke/ColoradoRiverFutures/tree/master/LakePowellTemperatureScenarios.
+Rosenberg, D. (2020). Colorado River Fitures - Code Projects: Lake Powell Water Surface Elevations for Release Temperature Scenarios. Utah State University. Logan, Utah. https://github.com/dzeke/ColoradoRiverFutures/tree/master/LakePowellTemperatureScenarios.
 
 ## Contents
 
 Figure 1 - Temperature suitability for cold-water non-native, water-water native, and warm-water nonnative fish.
 
-Figure 2 - Water Surface Elevation vs. Turbine release temperatures by month which is the Yackulic spreadsheet model output. One of my main takeaways from Yackulic model is that the data can be sliced by month.
+Figure 2 - Water Surface Elevation vs. Turbine release temperatures by month which is the Dibble/Yackulic spreadsheet model output. One of my main takeaways from Dibble/Yackulic model is that the data can be sliced by month.
 
 Figure 3 - Figure 2 plus adds observed water surface elevations vs. turbine release temperature. The observed data is plotted as a range of daily min and max temperatures.
 
@@ -38,15 +38,15 @@ Figure 6 - Observed and transformed water temperature profile data at Wahweap at
 Figure 7 - Lake Powell water surface elevations for river outlet release temperature scenarios. Same as Figure 5 but for lower river outlet release elevation.
 
 ## Data sources
-1. Fish temperature suitability - Table 2 from Valdez, R. A., Speas, D. W., and Kubly, D. M. (2013). "Benefits and Risks of Temperature Modification at Glen Canyon Dam to Aquatic Resources of the Colorado River in the Grand Canyon." U.S. Bureau of Reclamation, Salt Lake City, UT. https://gcdamp.com/images_gcdamp_com/b/bf/GCD-Temp_Mod-Valdez_%26_Speas_9-17-2013.pdf.
+1. Fish temperature suitability - Table 2 from Valdez, R. A., Speas, D. W., and Kubly, D. M. (2013). "Benefits and Risks of Temperature Modification at Glen Canyon Dam to Aquatic Resources of the Colorado River in the Grand Canyon." U.S. Bureau of Reclamation, Salt Lake City, UT. https://gcdamp.com/images_gcdamp_com/b/bf/GCD-Temp_Mod-Valdez_%26_Speas_9-17-2013.pdf. FishTemperatureRequirements.xlsx
 
-2. Yackulic Spreadsheet model of monthly release temperature as a function fo surface water elevation. TemperatureModel_GrandCanyonStorage.xlsx (unpublished)
+2. Dibble/Yackulic Spreadsheet model of monthly release temperature as a function fo surface water elevation. TemperatureModel_GrandCanyonStorage.xlsx (unpublished)
 
 3. Time series of Glen Canyon Dam release temperature provided by Bryce M. 15-minute time step. GCD_release_water_temp.csv
 
-4. Time series of daily Glen Canyon Dam elevation - USBR (2020). Water Operations: Historic Data, Upper Colorado River Division, U.S. Buruea of Reclamation. https://www.usbr.gov/rsvrWater/HistoricalApp.html
+4. Time series of daily Glen Canyon Dam elevation - USBR (2020). Water Operations: Historic Data, Upper Colorado River Division, U.S. Buruea of Reclamation. https://www.usbr.gov/rsvrWater/HistoricalApp.html. LAKEPOWELL06-16-2020T16.32.29.csv.
 
-5. Lake Powell Temperature Profiles. Vernieu, W. S. (2015). "Historical Physical and Chemical Data for Water in Lake Powell and from Glen Canyon Dam Releases, Utah-Arizona, 1964 –2013." Data Series 471, Version 3.0. https://pubs.usgs.gov/ds/471/pdf/ds471.pdf.
+5. Lake Powell Temperature Profiles. Vernieu, W. S. (2015). "Historical Physical and Chemical Data for Water in Lake Powell and from Glen Canyon Dam Releases, Utah-Arizona, 1964 –2013." Data Series 471, Version 3.0. https://pubs.usgs.gov/ds/471/pdf/ds471.pdf. 'qryProfiles at Primary Stations.csv'.
 
 ```{r Figure1, echo=FALSE, warning=FALSE, message=FALSE}
 
@@ -512,7 +512,7 @@ ggplot(data=dfTempElevationModelCalc %>% filter(Elevation > dfPowellZonesShort[6
 
 ```
 
-## Figure 2. Yackulic spreadsheet model: turbine release temperature vs. water surface elevation by month
+## Figure 2. Dibble/Yackulic spreadsheet model: turbine release temperature vs. water surface elevation by month
 
 One main take away is that the water surface-release temperature data can be sliced by month.
 \newpage
