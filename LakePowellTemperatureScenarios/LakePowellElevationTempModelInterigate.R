@@ -666,7 +666,9 @@ FindElevationRangeForTemperature <- function(dfObserved, dfProfile, cTemps, Temp
   return(dfRange)
 }
 
-cTempsBreak <- c(15,18)
+#cTempsBreak <- c(15,18)
+#New category < 12oC
+cTempsBreak <- c(12,15,18)
 
 dfTest <- FindTempRangeForElevation(dfPowellReleaseElev,dfPowellTempLevelsPlot, seq(3490,3690,by=5))
 dfTestElev <- FindElevationRangeForTemperature(dfPowellReleaseElev,dfPowellTempLevelsPlot, cTempsBreak, 1.0)
@@ -742,7 +744,8 @@ ggplot(data=dfPowellReleaseElev %>% filter(Day %in% seq(1,31, by=1)) %>% arrange
 # Try in stacked bar
 # Reformat the data for a stacked bar from bottom up. First entry is dummy to Turbine elevation
 
-cCategories <- c("< 15", "< 18","> 18","Base")
+#cCategories <- c("< 15", "< 18","> 18","Base")
+cCategories <- c("< 12", "< 15", "< 18","> 18","Base")
 
 # Order the data frame so can get the minimum elevation at the next warmest temperature
 dfTestElev <- dfTestElev[order(dfTestElev$Month.x, dfTestElev$Temperature),]
@@ -751,14 +754,16 @@ dfTestElev$maxElevNextT <- dplyr::lag(dfTestElev$maxElevation)
 # Filter for elevation values for each temperature block
 
 dfTestElevBar <- (data.frame(Month.x = seq(1,12,by=1), TempCategory = "Base" , ElevationAdd = 3490)) # Base entry
-dfTestElevBar2 <- as.data.frame(dfTestElev %>% filter(Temperature == cTempsBreak[2]) %>% mutate(Month.x = Month.x, TempCategory = cCategories[3], ElevationAdd = ifelse(minElevation > 3490, minElevation, 3490) - 3490) %>% select(Month.x, TempCategory, ElevationAdd))
-dfTestElevBar3 <- as.data.frame(dfTestElev %>% filter(Temperature == cTempsBreak[2]) %>% mutate(Month.x = Month.x, TempCategory = cCategories[2], ElevationAdd = maxElevNextT - minElevation) %>% select(Month.x, TempCategory, ElevationAdd))
-dfTestElevBar4 <- as.data.frame(dfTestElev %>% filter(Temperature == cTempsBreak[1]) %>% mutate(Month.x = Month.x, TempCategory = cCategories[1], ElevationAdd = 3700 - maxElevation) %>% select(Month.x, TempCategory, ElevationAdd))
+dfTestElevBar2 <- as.data.frame(dfTestElev %>% filter(Temperature == cTempsBreak[3]) %>% mutate(Month.x = Month.x, TempCategory = cCategories[4], ElevationAdd = ifelse(minElevation > 3490, minElevation, 3490) - 3490) %>% select(Month.x, TempCategory, ElevationAdd))
+dfTestElevBar3 <- as.data.frame(dfTestElev %>% filter(Temperature == cTempsBreak[3]) %>% mutate(Month.x = Month.x, TempCategory = cCategories[3], ElevationAdd = maxElevNextT - minElevation) %>% select(Month.x, TempCategory, ElevationAdd))
+dfTestElevBar4 <- as.data.frame(dfTestElev %>% filter(Temperature == cTempsBreak[2]) %>% mutate(Month.x = Month.x, TempCategory = cCategories[2], ElevationAdd = maxElevNextT - maxElevation) %>% select(Month.x, TempCategory, ElevationAdd))
+dfTestElevBar5 <- as.data.frame(dfTestElev %>% filter(Temperature == cTempsBreak[1]) %>% mutate(Month.x = Month.x, TempCategory = cCategories[1], ElevationAdd = 3700 - maxElevation) %>% select(Month.x, TempCategory, ElevationAdd))
 
-dfTestElevBar <- as.data.frame(rbind(dfTestElevBar, dfTestElevBar2, dfTestElevBar3, dfTestElevBar4))
+
+dfTestElevBar <- as.data.frame(rbind(dfTestElevBar, dfTestElevBar2, dfTestElevBar3, dfTestElevBar4, dfTestElevBar5))
 
 #Set transparency field. Base is zero. Everything else is one.
-dfTestElevBar$Alpha <- ifelse(dfTestElevBar$TempCategory == cCategories[4],0,1)
+dfTestElevBar$Alpha <- ifelse(dfTestElevBar$TempCategory == cCategories[5],0,1)
 
 
 #Order the bars
@@ -772,7 +777,7 @@ ggplot(data=dfTestElevBar) +  #[order(dfTestElevBar$TempCategory, decreasing = T
   geom_bar(aes(x=Month.x, y=ElevationAdd, fill=TempCategory, group = TempCategory, alpha = Alpha), stat = "identity") +
   #geom_ribbon(aes(x=Month.x, ymin= minElevation, ymax=maxElevation, fill=as.factor(Temperature))) +
   
-  scale_fill_manual(values = c("blue", "pink","red","white"), breaks = cCategories[1:3], labels = cCategories[1:3]) +
+  scale_fill_manual(values = c(palBlues[5], "blue", "pink","red","white"), breaks = cCategories[1:4], labels = cCategories[1:4]) +
   #scale_color_manual(values = c("blue","red")) +
   
   labs(y="Water Surface Elevation (feet)", x="Month", fill="Turbine Release\nTemperature (oC)", alpha = "", linetype="", shape="") +
@@ -889,14 +894,16 @@ dfTestDeadPoolElev$maxElevNextT <- dplyr::lag(dfTestDeadPoolElev$maxElevation)
 
 # Filter for elevation values for each temperature block
 dfTestElevDeadPoolBar <- (data.frame(Month.x = seq(1,12,by=1), TempCategory = "Base" , ElevationAdd = 3370)) # Base entry
-dfTestElevDeadPoolBar2 <- as.data.frame(dfTestDeadPoolElev %>% filter(Temperature == cTempsBreak[2]) %>% mutate(Month.x = Month.x, TempCategory = cCategories[3], ElevationAdd = ifelse(minElevation > 3370, minElevation, 3370) - 3370) %>% select(Month.x, TempCategory, ElevationAdd))
-dfTestElevDeadPoolBar3 <- as.data.frame(dfTestDeadPoolElev %>% filter(Temperature == cTempsBreak[2]) %>% mutate(Month.x = Month.x, TempCategory = cCategories[2], ElevationAdd = maxElevNextT - minElevation) %>% select(Month.x, TempCategory, ElevationAdd))
-dfTestElevDeadPoolBar4 <- as.data.frame(dfTestDeadPoolElev %>% filter(Temperature == cTempsBreak[1]) %>% mutate(Month.x = Month.x, TempCategory = cCategories[1], ElevationAdd = 3700 - maxElevation) %>% select(Month.x, TempCategory, ElevationAdd))
+dfTestElevDeadPoolBar2 <- as.data.frame(dfTestDeadPoolElev %>% filter(Temperature == cTempsBreak[3]) %>% mutate(Month.x = Month.x, TempCategory = cCategories[4], ElevationAdd = ifelse(minElevation > 3370, minElevation, 3370) - 3370) %>% select(Month.x, TempCategory, ElevationAdd))
+dfTestElevDeadPoolBar3 <- as.data.frame(dfTestDeadPoolElev %>% filter(Temperature == cTempsBreak[3]) %>% mutate(Month.x = Month.x, TempCategory = cCategories[3], ElevationAdd = maxElevNextT - minElevation) %>% select(Month.x, TempCategory, ElevationAdd))
+dfTestElevDeadPoolBar4 <- as.data.frame(dfTestDeadPoolElev %>% filter(Temperature == cTempsBreak[2]) %>% mutate(Month.x = Month.x, TempCategory = cCategories[2], ElevationAdd = maxElevNextT - maxElevation) %>% select(Month.x, TempCategory, ElevationAdd))
+dfTestElevDeadPoolBar5 <- as.data.frame(dfTestDeadPoolElev %>% filter(Temperature == cTempsBreak[1]) %>% mutate(Month.x = Month.x, TempCategory = cCategories[1], ElevationAdd = 3700 - maxElevation) %>% select(Month.x, TempCategory, ElevationAdd))
 
-dfTestElevDeadPoolBar <- as.data.frame(rbind(dfTestElevDeadPoolBar, dfTestElevDeadPoolBar2, dfTestElevDeadPoolBar3, dfTestElevDeadPoolBar4))
+
+dfTestElevDeadPoolBar <- as.data.frame(rbind(dfTestElevDeadPoolBar, dfTestElevDeadPoolBar2, dfTestElevDeadPoolBar3, dfTestElevDeadPoolBar4, dfTestElevDeadPoolBar5))
 
 #Set transparency field. Base is zero. Everything else is one.
-dfTestElevDeadPoolBar$Alpha <- ifelse(dfTestElevDeadPoolBar$TempCategory == cCategories[4],0,1)
+dfTestElevDeadPoolBar$Alpha <- ifelse(dfTestElevDeadPoolBar$TempCategory == cCategories[5],0,1)
 
 
 #Order the bars
@@ -910,7 +917,7 @@ ggplot(data=dfTestElevDeadPoolBar) +  #[order(dfTestElevBar$TempCategory, decrea
   geom_bar(aes(x=Month.x, y=ElevationAdd, fill=TempCategory, group = TempCategory, alpha = Alpha), stat = "identity") +
   #geom_ribbon(aes(x=Month.x, ymin= minElevation, ymax=maxElevation, fill=as.factor(Temperature))) +
   
-  scale_fill_manual(values = c("blue", "pink","red","white"), breaks = cCategories[1:3], labels = cCategories[1:3]) +
+  scale_fill_manual(values = c(palBlues[5], "blue", "pink","red","white"), breaks = cCategories[1:4], labels = cCategories[1:4]) +
   #scale_color_manual(values = c("blue","red")) +
   
   labs(y="Water Surface Elevation (feet)", x="Month", fill="Wahweep Temperature (oC)\nat Dead Pool Elev.", alpha = "", linetype="", shape="") +

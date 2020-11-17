@@ -15,7 +15,17 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Overview
 
-This is an R Markdown document. This document identifies Lake Powell water surface elevations for release temperature scenarios. Elevation ranges are estimated for release through the turbine (elevation 3490 feet) and release through the river outlets (3370 feet). Ranges for each outlet are plotted as stacked bar graphs. Ranges of water surface elevations are estimated using three data sets: Lake Powell turbine release temperature, water surface elevation, and temperature profiles. The three release temperature scenarios are temperatures less than 15oC, less than 18oC, and above 18oC. The scenario of release temperatures below 15oC represents historical conditions where warm-water native fish survive and possibly thrive. The scenario of release temperatures below 18oC represents a condition that has not yet occured and for which we do not know the outcome for warm-water native fish. Warm-water native fish may survive. Or native water-water fish may fall prey to competitor warm-water non-native fish. For the third scenario of release temperatures above 18oC, temperatures are too warm for native warm-water fish. In this temperature scenario, native warm-water fish will be expatriated. This effort attempts to describe, visualize, and translate uncertainties in reservoir release temperatures into the language of reservoir elevations which are the mainstay of other Lake Powell operations such as equalization and Upper Basin drought contingency plan.
+This is an R Markdown document. This document identifies Lake Powell water surface elevations for release temperature scenarios. Elevation ranges are estimated for release through the turbine (elevation 3490 feet) and release through the river outlets (3370 feet). Ranges for each outlet are plotted as stacked bar graphs. Ranges of water surface elevations are estimated using three data sets: Lake Powell turbine release temperature, water surface elevation, and temperature profiles. Four release temperature scenarios are temperatures less than 12^o^C, less than 15^o^C, less than 18^o^C, and above 18^o^C. Scenarios with release temperatures:
+
+1. below 12^o^C year round are conditions where native fish persisted, but likely only because of the existence of warmer tribs to spawn in.
+
+2. below 15^o^C represents conditions of thriving populations for many warm-water native fish (except razorback sucker). 
+
+3. below 18^o^C represents conditions that have not occurred in many decades, and which may benefit native fish, but may also harm them by facilitating invasion by warm water non-natives.
+
+4. above 18^o^C represents conditions that have not occurred in many decades, for which predictions are highly uncertain, and for which the potential for negative consequences for native species increases dramatically.
+
+This effort attempts to describe, visualize, and translate uncertainties in reservoir release temperatures into the language of reservoir elevations which are the mainstay of other Lake Powell operations such as equalization and Upper Basin drought contingency plan.
 
 ## Citation
 
@@ -25,7 +35,7 @@ Rosenberg, D. (2020). Colorado River Fitures - Code Projects: Lake Powell Water 
 
 Figure 1 - Temperature suitability for cold-water non-native, water-water native, and warm-water nonnative fish.
 
-Figure 2 - Water Surface Elevation vs. Turbine release temperatures by month which is the Dibble/Yackulic spreadsheet model output. One of my main takeaways from Dibble/Yackulic model is that the data can be sliced by month.
+Figure 2 - Water Surface Elevation vs. Turbine release temperatures by month which is the Dibble et al (unpublished) spreadsheet model output. One of my main takeaways from Dibble et al (unpublished) model is that the data can be sliced by month.
 
 Figure 3 - Figure 2 plus adds observed water surface elevations vs. turbine release temperature. The observed data is plotted as a range of daily min and max temperatures.
 
@@ -40,7 +50,7 @@ Figure 7 - Lake Powell water surface elevations for river outlet release tempera
 ## Data sources
 1. Fish temperature suitability - Table 2 from Valdez, R. A., Speas, D. W., and Kubly, D. M. (2013). "Benefits and Risks of Temperature Modification at Glen Canyon Dam to Aquatic Resources of the Colorado River in the Grand Canyon." U.S. Bureau of Reclamation, Salt Lake City, UT. https://gcdamp.com/images_gcdamp_com/b/bf/GCD-Temp_Mod-Valdez_%26_Speas_9-17-2013.pdf. FishTemperatureRequirements.xlsx
 
-2. Dibble/Yackulic Spreadsheet model of monthly release temperature as a function fo surface water elevation. TemperatureModel_GrandCanyonStorage.xlsx (unpublished)
+2. Dibble et al (unpublished) Spreadsheet model of monthly release temperature as a function fo surface water elevation. TemperatureModel_GrandCanyonStorage.xlsx (unpublished)
 
 3. Time series of Glen Canyon Dam release temperature provided by Bryce M. 15-minute time step. GCD_release_water_temp.csv
 
@@ -62,7 +72,7 @@ Figure 7 - Lake Powell water surface elevations for river outlet release tempera
 # 9. Plot the range of water surface elevations for different release temperature scenarios
 #
 # David E. Rosenberg
-# October 27, 2020
+# November 17, 2020
 # Utah State University
 # david.rosenberg@usu.edu
 
@@ -311,7 +321,7 @@ ggplot(dfFishTempSuitPlot) +
   
   scale_x_discrete(breaks = cgNames$Xplot, labels = cNames$`Common Name`) +
   
-  labs(x="Fish Species (common name)", y="River Temperature (oC)") +
+  labs(x="Fish Species (common name)", y="River Temperature (oC)"  ) +
   theme(text = element_text(size=nFontSize), legend.title=element_blank(), legend.text=element_text(size=nFontSize-4),
         legend.key = element_blank(), axis.text.x = element_text(angle = 90, size=nFontSize-4, hjust=0.95,vjust=0.2))
 
@@ -512,7 +522,7 @@ ggplot(data=dfTempElevationModelCalc %>% filter(Elevation > dfPowellZonesShort[6
 
 ```
 
-## Figure 2. Dibble/Yackulic spreadsheet model: turbine release temperature vs. water surface elevation by month
+## Figure 2. Dibble et al (unpublished) spreadsheet model: turbine release temperature vs. water surface elevation by month
 
 One main take away is that the water surface-release temperature data can be sliced by month.
 \newpage
@@ -590,9 +600,9 @@ ggplot(data=dfPowellReleaseElev %>% filter(Day %in% seq(1,31, by=1)) %>% arrange
 
 Profile data was transformed twice.
 
-1) Lower water surface elevation so depth reading is at the penstock elevation of 3490 feet. Two translation is used to plot the profile data at a lower water surface elevations. For example, a temperature profile point of 18oC 10 feet below (depth = 10 feet) an observed water surface elevation of 3610 feet is translated down to a water surface elevation of 3500 feet. 10 feet below the new water surface elevation fo 3500 feet is the turbine release elevation of 3490 feet and a temperature of 18oC. Similarly, a temperature profile point of 15oC measured 20 feet below an oserved water surface level of 3610 feet is translated down to a water water surface elevation of 3510 feet and turbine release temperature of 15oC (20 feet above the turbine elevation of 3490 feet). These translations assume that solar radiation is the primary driver of temperature in the reservoir epilimium and that water temperatures at shallow depths will be similar regardless of whether the water surface elevation is 3490, 3500, 3520, etc. feet.
+1) Lower water surface elevation so depth reading is at the penstock elevation of 3490 feet. Two translation is used to plot the profile data at a lower water surface elevations. For example, a temperature profile point of 18^o^C 10 feet below (depth = 10 feet) an observed water surface elevation of 3610 feet is translated down to a water surface elevation of 3500 feet. 10 feet below the new water surface elevation fo 3500 feet is the turbine release elevation of 3490 feet and a temperature of 18^o^C. Similarly, a temperature profile point of 15^o^C measured 20 feet below an oserved water surface level of 3610 feet is translated down to a water water surface elevation of 3510 feet and turbine release temperature of 15^o^C (20 feet above the turbine elevation of 3490 feet). These translations assume that solar radiation is the primary driver of temperature in the reservoir epilimium and that water temperatures at shallow depths will be similar regardless of whether the water surface elevation is 3490, 3500, 3520, etc. feet.
 
-2) For Wahweap temperatures at turbine elevation above 11, 13, and 15oC, decrease the turbine release temperature by 0.5, 1, and 2oC. Comparing turbine release temperatures to temperatures at Wahweap at 3,390 feet shows the later is 1 to 2 oC cooler than the Wahweap temperature.
+2) For Wahweap temperatures at turbine elevation above 11, 13, and 15^o^C, decrease the turbine release temperature by 0.5, 1, and 2^o^C. Comparing turbine release temperatures to temperatures at Wahweap at 3,390 feet shows the later is 1 to 2 ^o^C cooler than the Wahweap temperature.
 
 \newpage
 
@@ -711,7 +721,8 @@ FindElevationRangeForTemperature <- function(dfObserved, dfProfile, cTemps, Temp
 }
 
 #Temperatures at which to show range of elevation
-cTempsBreak <- c(15,18)
+#cTempsBreak <- c(15,18)
+cTempsBreak <- c(12,15,18) #Include <12oC scenario
 
 dfTest <- FindTempRangeForElevation(dfPowellReleaseElev,dfPowellTempLevelsPlot, seq(3490,3690,by=5))
 dfTestElev <- FindElevationRangeForTemperature(dfPowellReleaseElev,dfPowellTempLevelsPlot, cTempsBreak, 1.0)
@@ -720,7 +731,8 @@ dfTestElev <- FindElevationRangeForTemperature(dfPowellReleaseElev,dfPowellTempL
 # Try in stacked bar
 # Reformat the data for a stacked bar from bottom up. First entry is dummy to Turbine elevation
 
-cCategories <- c("< 15", "< 18","> 18","Base")
+#cCategories <- c("< 15", "< 18","> 18","Base")
+cCategories <- c("< 12", "< 15", "< 18","> 18","Base") #Includes <12oC scenario
 
 # Order the data frame so can get the minimum elevation at the next warmest temperature
 dfTestElev <- dfTestElev[order(dfTestElev$Month.x, dfTestElev$Temperature),]
@@ -729,14 +741,17 @@ dfTestElev$maxElevNextT <- dplyr::lag(dfTestElev$maxElevation)
 # Filter for elevation values for each temperature block
 
 dfTestElevBar <- (data.frame(Month.x = seq(1,12,by=1), TempCategory = "Base" , ElevationAdd = 3490)) # Base entry
-dfTestElevBar2 <- as.data.frame(dfTestElev %>% filter(Temperature == cTempsBreak[2]) %>% mutate(Month.x = Month.x, TempCategory = cCategories[3], ElevationAdd = ifelse(minElevation > 3490, minElevation, 3490) - 3490) %>% select(Month.x, TempCategory, ElevationAdd))
-dfTestElevBar3 <- as.data.frame(dfTestElev %>% filter(Temperature == cTempsBreak[2]) %>% mutate(Month.x = Month.x, TempCategory = cCategories[2], ElevationAdd = maxElevNextT - minElevation) %>% select(Month.x, TempCategory, ElevationAdd))
-dfTestElevBar4 <- as.data.frame(dfTestElev %>% filter(Temperature == cTempsBreak[1]) %>% mutate(Month.x = Month.x, TempCategory = cCategories[1], ElevationAdd = 3700 - maxElevation) %>% select(Month.x, TempCategory, ElevationAdd))
+dfTestElevBar2 <- as.data.frame(dfTestElev %>% filter(Temperature == cTempsBreak[3]) %>% mutate(Month.x = Month.x, TempCategory = cCategories[4], ElevationAdd = ifelse(minElevation > 3490, minElevation, 3490) - 3490) %>% select(Month.x, TempCategory, ElevationAdd))
+dfTestElevBar3 <- as.data.frame(dfTestElev %>% filter(Temperature == cTempsBreak[3]) %>% mutate(Month.x = Month.x, TempCategory = cCategories[3], ElevationAdd = maxElevNextT - minElevation) %>% select(Month.x, TempCategory, ElevationAdd))
+dfTestElevBar4 <- as.data.frame(dfTestElev %>% filter(Temperature == cTempsBreak[2]) %>% mutate(Month.x = Month.x, TempCategory = cCategories[2], ElevationAdd = maxElevNextT - maxElevation) %>% select(Month.x, TempCategory, ElevationAdd))
+dfTestElevBar5 <- as.data.frame(dfTestElev %>% filter(Temperature == cTempsBreak[1]) %>% mutate(Month.x = Month.x, TempCategory = cCategories[1], ElevationAdd = 3700 - maxElevation) %>% select(Month.x, TempCategory, ElevationAdd))
 
-dfTestElevBar <- as.data.frame(rbind(dfTestElevBar, dfTestElevBar2, dfTestElevBar3, dfTestElevBar4))
+
+dfTestElevBar <- as.data.frame(rbind(dfTestElevBar, dfTestElevBar2, dfTestElevBar3, dfTestElevBar4, dfTestElevBar5))
+
 
 #Set transparency field. Base is zero. Everything else is one.
-dfTestElevBar$Alpha <- ifelse(dfTestElevBar$TempCategory == cCategories[4],0,1)
+dfTestElevBar$Alpha <- ifelse(dfTestElevBar$TempCategory == cCategories[5],0,1)
 
 
 #Order the bars
@@ -750,7 +765,8 @@ ggplot(data=dfTestElevBar) +  #[order(dfTestElevBar$TempCategory, decreasing = T
   geom_bar(aes(x=Month.x, y=ElevationAdd, fill=TempCategory, group = TempCategory, alpha = Alpha), stat = "identity") +
   #geom_ribbon(aes(x=Month.x, ymin= minElevation, ymax=maxElevation, fill=as.factor(Temperature))) +
   
-  scale_fill_manual(values = c("blue", "pink","red","white"), breaks = cCategories[1:3], labels = cCategories[1:3]) +
+  scale_fill_manual(values = c(palBlues[5], "blue", "pink","red","white"), breaks = cCategories[1:4], labels = cCategories[1:4]) +
+
   #scale_color_manual(values = c("blue","red")) +
   
   labs(y="Water Surface Elevation (feet)", x="Month", fill="Turbine Release\nTemperature Scenario\n(oC)", alpha = "", linetype="", shape="") +
@@ -762,7 +778,7 @@ ggplot(data=dfTestElevBar) +  #[order(dfTestElevBar$TempCategory, decreasing = T
   
   #Vertical line at temperature breaks
   #geom_vline(xintercept=c(15,18)) +
-  theme(text = element_text(size=nFontSize), legend.text=element_text(size=nFontSize-2), legend.position="top")
+  theme(text = element_text(size=nFontSize), legend.text=element_text(size=nFontSize-4), legend.title=element_text(size=nFontSize-2), legend.position="top", legend.title.align = 0.5)
 
 
 ```
@@ -879,14 +895,16 @@ dfTestDeadPoolElev$maxElevNextT <- dplyr::lag(dfTestDeadPoolElev$maxElevation)
 
 # Filter for elevation values for each temperature block
 dfTestElevDeadPoolBar <- (data.frame(Month.x = seq(1,12,by=1), TempCategory = "Base" , ElevationAdd = 3370)) # Base entry
-dfTestElevDeadPoolBar2 <- as.data.frame(dfTestDeadPoolElev %>% filter(Temperature == cTempsBreak[2]) %>% mutate(Month.x = Month.x, TempCategory = cCategories[3], ElevationAdd = ifelse(minElevation > 3370, minElevation, 3370) - 3370) %>% select(Month.x, TempCategory, ElevationAdd))
-dfTestElevDeadPoolBar3 <- as.data.frame(dfTestDeadPoolElev %>% filter(Temperature == cTempsBreak[2]) %>% mutate(Month.x = Month.x, TempCategory = cCategories[2], ElevationAdd = maxElevNextT - minElevation) %>% select(Month.x, TempCategory, ElevationAdd))
-dfTestElevDeadPoolBar4 <- as.data.frame(dfTestDeadPoolElev %>% filter(Temperature == cTempsBreak[1]) %>% mutate(Month.x = Month.x, TempCategory = cCategories[1], ElevationAdd = 3700 - maxElevation) %>% select(Month.x, TempCategory, ElevationAdd))
+dfTestElevDeadPoolBar2 <- as.data.frame(dfTestDeadPoolElev %>% filter(Temperature == cTempsBreak[3]) %>% mutate(Month.x = Month.x, TempCategory = cCategories[4], ElevationAdd = ifelse(minElevation > 3370, minElevation, 3370) - 3370) %>% select(Month.x, TempCategory, ElevationAdd))
+dfTestElevDeadPoolBar3 <- as.data.frame(dfTestDeadPoolElev %>% filter(Temperature == cTempsBreak[3]) %>% mutate(Month.x = Month.x, TempCategory = cCategories[3], ElevationAdd = maxElevNextT - minElevation) %>% select(Month.x, TempCategory, ElevationAdd))
+dfTestElevDeadPoolBar4 <- as.data.frame(dfTestDeadPoolElev %>% filter(Temperature == cTempsBreak[2]) %>% mutate(Month.x = Month.x, TempCategory = cCategories[2], ElevationAdd = maxElevNextT - maxElevation) %>% select(Month.x, TempCategory, ElevationAdd))
+dfTestElevDeadPoolBar5 <- as.data.frame(dfTestDeadPoolElev %>% filter(Temperature == cTempsBreak[1]) %>% mutate(Month.x = Month.x, TempCategory = cCategories[1], ElevationAdd = 3700 - maxElevation) %>% select(Month.x, TempCategory, ElevationAdd))
 
-dfTestElevDeadPoolBar <- as.data.frame(rbind(dfTestElevDeadPoolBar, dfTestElevDeadPoolBar2, dfTestElevDeadPoolBar3, dfTestElevDeadPoolBar4))
+
+dfTestElevDeadPoolBar <- as.data.frame(rbind(dfTestElevDeadPoolBar, dfTestElevDeadPoolBar2, dfTestElevDeadPoolBar3, dfTestElevDeadPoolBar4, dfTestElevDeadPoolBar5))
 
 #Set transparency field. Base is zero. Everything else is one.
-dfTestElevDeadPoolBar$Alpha <- ifelse(dfTestElevDeadPoolBar$TempCategory == cCategories[4],0,1)
+dfTestElevDeadPoolBar$Alpha <- ifelse(dfTestElevDeadPoolBar$TempCategory == cCategories[5],0,1)
 
 
 #Order the bars
@@ -900,16 +918,17 @@ ggplot(data=dfTestElevDeadPoolBar) +  #[order(dfTestElevBar$TempCategory, decrea
   geom_bar(aes(x=Month.x, y=ElevationAdd, fill=TempCategory, group = TempCategory, alpha = Alpha), stat = "identity") +
   #geom_ribbon(aes(x=Month.x, ymin= minElevation, ymax=maxElevation, fill=as.factor(Temperature))) +
   
-  scale_fill_manual(values = c("blue", "pink","red","white"), breaks = cCategories[1:3], labels = cCategories[1:3]) +
+  scale_fill_manual(values = c(palBlues[5], "blue", "pink","red","white"), breaks = cCategories[1:4], labels = cCategories[1:4]) +
+
   #scale_color_manual(values = c("blue","red")) +
   
-  labs(y="Water Surface Elevation (feet)", x="Month", fill="Wahweep Temperature (oC)\nat River Outlet Elev.", alpha = "", linetype="", shape="") +
+  labs(y="Water Surface Elevation (feet)", x="Month", fill="Wahweep Temp. (oC)\nat River Outlet Elev.", alpha = "", linetype="", shape="") +
   coord_cartesian(ylim = c(3370,3700)) +
   scale_y_continuous(breaks = seq(3250,3711, by=50),labels=seq(3250,3711, by=50),  sec.axis = sec_axis(~. +0, name = "Active Storage\n(million acre-feet)", breaks = dfPowellZonesMinusTop$level_feet, labels = dfPowellZonesMinusTop$rightlabel )) +
   scale_x_continuous(limits = c(0.5,12.5), breaks = seq(1,12,by=1)) +
   scale_alpha(guide = 'none') +
 
-  theme(text = element_text(size=nFontSize-2), legend.text=element_text(size=nFontSize-2), legend.position="top") #,
+  theme(text = element_text(size=nFontSize-2), legend.title=element_text(size=nFontSize-2), legend.text=element_text(size=nFontSize-2), legend.position="top", legend.title.align = 0.5) #,
 
 
 ```
