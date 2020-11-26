@@ -51,4 +51,4 @@ Additionally generates plots that show the daily range of release temperature (P
 8. R studio will run the code, generate the figures, and store the figures as .png files in the same directory. 
 
 ## Recommended Citation
-Rosenberg, D. (2020). Colorado River Fitures - Code Projects: Lake Powell Water Surface Elevations for Release Temperature Scenarios. Utah State University. Logan, Utah. https://github.com/dzeke/ColoradoRiverFutures/tree/master/LakePowellTemperatureScenarios.
+Rosenberg, D. (2020). Colorado River Fitures - Code Projects: How Much Water To Store in Lake Powell to Benefit Native Fish. Utah State University. Logan, Utah. https://github.com/dzeke/ColoradoRiverFutures/tree/master/LakePowellTemperatureScenarios.
