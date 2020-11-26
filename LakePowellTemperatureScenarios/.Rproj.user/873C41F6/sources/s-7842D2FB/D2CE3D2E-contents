@@ -335,9 +335,6 @@ ggsave("SpeciesTempNeedsDibble.png", width=7, height = 6.5, units="in")
 
 
 
-
-
-
 ###### 2. Plot Release temperature data vs time
 
 ## Calculate daily min, max, average, range

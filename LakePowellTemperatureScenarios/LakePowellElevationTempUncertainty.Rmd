@@ -6,7 +6,7 @@ header-includes:
 - \usepackage{lscape}
 - \newcommand{\blandscape}{\begin{landscape}}
 - \newcommand{\elandscape}{\end{landscape}}
-output: word_document
+output: pdf_document
 ---
 
 ```{r setup, include=FALSE}
@@ -35,7 +35,7 @@ Rosenberg, D. (2020). Colorado River Fitures - Code Projects: How much water to 
 
 ## Contents
 
-Figure 1 - Temperature suitability for cold-water non-native, water-water native, and warm-water nonnative fish. Not very belieable data. Need to update. 
+Figure 1 - Temperature suitability for  water-water native, and warm-water nonnative fish.
 
 Figure 2 - Water Surface Elevation vs. Turbine release temperatures by month which is the Dibble et al (unpublished) spreadsheet model output. One of my main takeaways from Dibble et al (unpublished) model is that the data can be sliced by month.
 
@@ -50,7 +50,9 @@ Figure 6 - Observed and transformed water temperature profile data at Wahweap at
 Figure 7 - Lake Powell water surface elevations for river outlet release temperature scenarios. Same as Figure 5 but for lower river outlet release elevation.
 
 ## Data sources
-1. Fish temperature suitability - Table 2 from Valdez, R. A., Speas, D. W., and Kubly, D. M. (2013). "Benefits and Risks of Temperature Modification at Glen Canyon Dam to Aquatic Resources of the Colorado River in the Grand Canyon." U.S. Bureau of Reclamation, Salt Lake City, UT. https://gcdamp.com/images_gcdamp_com/b/bf/GCD-Temp_Mod-Valdez_%26_Speas_9-17-2013.pdf. FishTemperatureRequirements.xlsx
+1. Fish temperature suitability - Table S1, page 39 from Dibble et al (2000, submitted). This is in file EAP20-06...pdf. Digitized version in FishTemperatureRequirements.xlsx, TempDibble worksheet.
+
+An older version of fish suitability. Table 2 from Valdez, R. A., Speas, D. W., and Kubly, D. M. (2013). "Benefits and Risks of Temperature Modification at Glen Canyon Dam to Aquatic Resources of the Colorado River in the Grand Canyon." U.S. Bureau of Reclamation, Salt Lake City, UT. https://gcdamp.com/images_gcdamp_com/b/bf/GCD-Temp_Mod-Valdez_%26_Speas_9-17-2013.pdf. FishTemperatureRequirements.xlsx, TempRequirements worksheet.
 
 2. Dibble et al (unpublished) Spreadsheet model of monthly release temperature as a function fo surface water elevation. TemperatureModel_GrandCanyonStorage.xlsx (unpublished)
 
@@ -271,12 +273,14 @@ for(Mon in seq(1,12, by=1)) {
 dfTempElevationModelCalc <- dfTempElevationModelCalc[2:nrow(dfTempElevationModelCalc),]
 
 
-### E. Load in the fish temperature suitability data from Excel/Valdez et al (2013)
+### E. Load in the fish temperature suitability data 
 
 sTempSuitFile <- 'FishTemperatureRequirements.xlsx'
 
-dfFishTempSuit <- read_excel(sTempSuitFile, sheet = 2, col_names=TRUE)
+dfFishTempSuit <- read_excel(sTempSuitFile, sheet = 2, col_names=TRUE) #From Valdez (2013)
 dfMinDegreeDays <- read_excel(sTempSuitFile, sheet = 3, col_names=TRUE)
+
+dfFishTempSuitDibble <- read_excel(sTempSuitFile, sheet = 4, col_names=TRUE) #From Dibble et al (2020)
 
 # Melt to move life stage into a new category
 dfFishTempSuitMelt <- melt(dfFishTempSuit, id.vars= c("Common Name", "Group", "GroupDescript", "Code", "Keystone"))
@@ -309,32 +313,66 @@ cgNames <- dfFishTempSuitPlot %>% filter(LifeStage == "Growth") %>% select(Xplot
 
 nFontSize <- 14
 
-ggplot(dfFishTempSuitPlot) +
+# ggplot(dfFishTempSuitPlot) +
+#   #Min-max range
+#   geom_errorbar(aes(x = Xplot, ymin = Min., ymax = Max., color=GroupDescript, size = Keystone)) +
+#   #Optimal as point
+#   #geom_point(aes(x=Xplot,y=Opt., color=GroupDescript),size=4) +
+#   
+#   #facet_wrap( ~ LifeStage) +
+#   
+#   scale_color_manual(values = c("blue","red","pink")) +
+#   # scale_x_discrete(labels = dfFishTempSuitPlot %>% filter(LifeStage == "Growth") %>% select(`Common Name`)) +
+#   scale_size_continuous(range = c(1,2), breaks = c(0,1), labels = c("Study", "Keystone")) +
+#   
+#   scale_x_discrete(breaks = cgNames$Xplot, labels = cNames$`Common Name`) +
+#   
+#   labs(x="Fish Species (common name)", y="River Temperature (oC)"  ) +
+#   theme(text = element_text(size=nFontSize), legend.title=element_blank(), legend.text=element_text(size=nFontSize-4),
+#         legend.key = element_blank(), axis.text.x = element_text(angle = 90, size=nFontSize-4, hjust=0.95,vjust=0.2))
+# 
+
+#```
+
+## Figure 1. Grand Canyon fish temperature suitability: growth, incubation, and ovulation stages (Valdex et al, 2013). Not very belieable data. Need to update.
+
+#\newpage
+
+#```{r Figure1dibble, echo=FALSE, warning=FALSE, message=FALSE}
+
+
+# Organzie the data to plot by group and fish species
+dfFishTempSuitDibblePlot <- dfFishTempSuitDibble[order(dfFishTempSuitDibble$GroupDescript,dfFishTempSuitDibble$`Common Name`),]
+dfFishTempSuitDibblePlot$Xplot <- paste(dfFishTempSuitDibblePlot$GroupDescript, dfFishTempSuitDibblePlot$`Common Name`,sep="-")
+cNamesDibble <- dfFishTempSuitDibblePlot %>% select(`Common Name`)
+cgNamesDibble <- dfFishTempSuitDibblePlot %>% select(Xplot)
+
+
+ggplot(dfFishTempSuitDibblePlot) +
   #Min-max range
-  geom_errorbar(aes(x = Xplot, ymin = Min., ymax = Max., color=GroupDescript, size = Keystone)) +
+  geom_errorbar(aes(x = Xplot, ymin = Minimum, ymax = Maximum, color=GroupDescript), size=2) +
+  geom_errorbar(aes(x = Xplot, ymin = `Minimum Optimal`, ymax = `Maximum Optimal`, color=GroupDescript), size=2) +
   #Optimal as point
   #geom_point(aes(x=Xplot,y=Opt., color=GroupDescript),size=4) +
   
-  #facet_wrap( ~ LifeStage) +
-  
-  scale_color_manual(values = c("blue","red","pink")) +
+  scale_color_manual(values = c("red","pink")) +
   # scale_x_discrete(labels = dfFishTempSuitPlot %>% filter(LifeStage == "Growth") %>% select(`Common Name`)) +
-  scale_size_continuous(range = c(1,2), breaks = c(0,1), labels = c("Study", "Keystone")) +
+  scale_x_discrete(breaks = cgNamesDibble$Xplot, labels = cNamesDibble$`Common Name`) +
+  scale_y_continuous(limits = c(10,40)) +
   
-  scale_x_discrete(breaks = cgNames$Xplot, labels = cNames$`Common Name`) +
-  
-  labs(x="Fish Species (common name)", y="River Temperature (oC)"  ) +
-  theme(text = element_text(size=nFontSize), legend.title=element_blank(), legend.text=element_text(size=nFontSize-4),
-        legend.key = element_blank(), axis.text.x = element_text(angle = 90, size=nFontSize-4, hjust=0.95,vjust=0.2))
-
+  labs(x="Fish Species (common name)", y="River Temperature (oC)") +
+  theme(text = element_text(size=nFontSize), legend.title=element_blank(), legend.text=element_text(size=18),
+        legend.key = element_blank(), axis.text.x = element_text(angle = 90, size=nFontSize-2, hjust=0.95,vjust=0.2))
 
 ```
 
-## Figure 1. Grand Canyon fish temperature suitability: growth, incubation, and ovulation stages (Valdex et al, 2013). Not very belieable data. Need to update.
+## Figure 1. Grand Canyon fish temperature suitability: minimum, minimum optimal, maximum optimal, and maximum (Dibble et al, 2020).
 
 \newpage
 
 ```{r Figure2, echo=FALSE, warning=FALSE, message=FALSE}
+
+
 
 ###### 2. Plot Release temperature data vs time
 

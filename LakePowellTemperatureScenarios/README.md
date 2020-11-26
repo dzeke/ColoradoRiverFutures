@@ -3,7 +3,7 @@
 Data, scripts, and script outputs that identify Lake Powell water surface elevations for release temperature scenarios. Elevation ranges are estimated for each temperature scenario for release through the turbine (elevation 3490 feet) and release through the river outlets (3370 feet).
 
 ## Data Sources
-1. Fish temperature suitability - Table 2 from Valdez, R. A., Speas, D. W., and Kubly, D. M. (2013). "Benefits and Risks of Temperature Modification at Glen Canyon Dam to Aquatic Resources of the Colorado River in the Grand Canyon." U.S. Bureau of Reclamation, Salt Lake City, UT. https://gcdamp.com/images_gcdamp_com/b/bf/GCD-Temp_Mod-Valdez_%26_Speas_9-17-2013.pdf. FishTemperatureRequirements.xlsx
+1. Fish temperature suitability - Fish temperature suitability - Table S1, page 39 from Dibble et al (2000, submitted). This is in file EAP20-06...pdf. Digitized version in FishTemperatureRequirements.xlsx, TempDibble worksheet.
 
 2. Dibble/Yackulic Spreadsheet model of monthly release temperature as a function fo surface water elevation. TemperatureModel_GrandCanyonStorage.xlsx (unpublished)
 
@@ -17,10 +17,12 @@ Data, scripts, and script outputs that identify Lake Powell water surface elevat
 
 ## Subfolders
 1. **TempDataBryce** - csv files of water temperature at several downstream Grand Canyon river mile locations. Data from Milhalevich et al (in press) - https://usu.box.com/s/ur2rme52rs36frcv94xtydiosmnp528v 
+2. **VoichickWrightData** - csv files of river temperature data. Voichick, N., and Wright, S. A. (2007). "Water-Temperature Data for the Colorado River and Tributaries Between Glen Canyon Dam and Spencer Canyon, Northern Arizona, 1988-2005." 251. http://pubs.er.usgs.gov/publication/ds251. 
    + GrandCanyonTempCompare.r - R script that loads the data and produces plots.
    + RiverTemperatureRangeByYearCDF.png - Daily range of river temperature (x-axis) by year (trace) and river mile (facet)
    + RiverTemperatureRangeByCDFs.png - Daily range of river temperature (x-axis) by month (trace) and river mile (facet)
    + TempVsRiverMile.png -Daily average water temperature by river mile (x-axis) by month (facet) and year (color). Shows progression of river temperature as water moves down the Grand Canyon.
+   + Rosenberg-HowMuchWaterToStoreinPowellToBenefitNativeFish.docx - More edited/formatted version of LakePowellElevationTempUncertainty.pdf. Uses select figures.
 
 ## Script Files
 1. **LakePowellElevationTempUncertainty.Rmd** -- Markdown document. First reads all five data sources, second specifies release temperature scenarios, third calculates range of release temperatures at specified water surface elevations (using data sources #3, 4, and 5), and finally generates several figures that show 
