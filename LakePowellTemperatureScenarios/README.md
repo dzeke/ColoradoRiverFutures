@@ -1,6 +1,8 @@
-# Lake Powell Temperature Release Scenarios
+# How Much Water To Store in Lake Powell to Benefit Native Fish?
 
-Data, scripts, and script outputs that identify Lake Powell water surface elevations for release temperature scenarios. Elevation ranges are estimated for each temperature scenario for release through the turbine (elevation 3490 feet) and release through the river outlets (3370 feet).
+Data, scripts, and script outputs that support the analysis of how much water to store in Lake Powell to benefit native fish? 
+Briefly, create scenarios of release temperatures good for fish. Then identify the range of reservoir water surface elevations that will provide those temperatures.
+Elevation ranges are estimated for each temperature scenario for release through the turbine (elevation 3490 feet) and release through the river outlets (3370 feet).
 
 ## Data Sources
 1. Fish temperature suitability - Fish temperature suitability - Table S1, page 39 from Dibble et al (2000, submitted). This is in file EAP20-06...pdf. Digitized version in FishTemperatureRequirements.xlsx, TempDibble worksheet.
