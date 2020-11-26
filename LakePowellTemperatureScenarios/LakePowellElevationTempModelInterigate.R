@@ -238,6 +238,8 @@ sTempSuitFile <- 'FishTemperatureRequirements.xlsx'
 
 dfFishTempSuit <- read_excel(sTempSuitFile, sheet = 2, col_names=TRUE)
 dfMinDegreeDays <- read_excel(sTempSuitFile, sheet = 3, col_names=TRUE)
+#Read updated fish-temperature suitability data by Dibble et al
+dfFishTempSuitDibble <- read_excel(sTempSuitFile, sheet = 4, col_names=TRUE)
 
 # Melt to move life stage into a new category
 dfFishTempSuitMelt <- melt(dfFishTempSuit, id.vars= c("Common Name", "Group", "GroupDescript", "Code", "Keystone"))
@@ -301,6 +303,38 @@ ggplot(dfFishTempSuitPlot) +
         legend.key = element_blank(), axis.text.x = element_text(angle = 90, size=14, hjust=0.95,vjust=0.2))
 
 ggsave("SpeciesTempNeedsCombined.png", width=9, height = 6.5, units="in")
+
+
+### Plot Fish spicies temperature data with updated Dibble data
+
+# Organzie the data to plot by group and fish species
+dfFishTempSuitDibblePlot <- dfFishTempSuitDibble[order(dfFishTempSuitDibble$GroupDescript,dfFishTempSuitDibble$`Common Name`),]
+dfFishTempSuitDibblePlot$Xplot <- paste(dfFishTempSuitDibblePlot$GroupDescript, dfFishTempSuitDibblePlot$`Common Name`,sep="-")
+cNamesDibble <- dfFishTempSuitDibblePlot %>% select(`Common Name`)
+cgNamesDibble <- dfFishTempSuitDibblePlot %>% select(Xplot)
+
+
+ggplot(dfFishTempSuitDibblePlot) +
+  #Min-max range
+  geom_errorbar(aes(x = Xplot, ymin = Minimum, ymax = Maximum, color=GroupDescript), size=2) +
+  geom_errorbar(aes(x = Xplot, ymin = `Minimum Optimal`, ymax = `Maximum Optimal`, color=GroupDescript), size=2) +
+  #Optimal as point
+  #geom_point(aes(x=Xplot,y=Opt., color=GroupDescript),size=4) +
+  
+  scale_color_manual(values = c("red","pink")) +
+  # scale_x_discrete(labels = dfFishTempSuitPlot %>% filter(LifeStage == "Growth") %>% select(`Common Name`)) +
+  scale_x_discrete(breaks = cgNamesDibble$Xplot, labels = cNamesDibble$`Common Name`) +
+  scale_y_continuous(limits = c(10,40)) +
+  
+  labs(x="Fish Species (common name)", y="River Temperature (oC)") +
+  theme(text = element_text(size=20), legend.title=element_blank(), legend.text=element_text(size=18),
+        legend.key = element_blank(), axis.text.x = element_text(angle = 90, size=14, hjust=0.95,vjust=0.2))
+
+ggsave("SpeciesTempNeedsDibble.png", width=7, height = 6.5, units="in")
+
+
+
+
 
 
 

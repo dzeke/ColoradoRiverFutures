@@ -1,16 +1,18 @@
 ---
-title: "Lake Powell Water Surface Elevations for Release Temperature Scenarios"
+title: "How much water to store in Lake Powell to benefit native fish of the Grand Canyon?"
 author: "David E. Rosenberg"
-date: "November 16, 2020"
+date: "November 21, 2020"
 header-includes:
 - \usepackage{lscape}
 - \newcommand{\blandscape}{\begin{landscape}}
 - \newcommand{\elandscape}{\end{landscape}}
-output: pdf_document
+output: word_document
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+
+#output: pdf_document
 ```
 
 ## Overview
@@ -29,11 +31,11 @@ This effort attempts to describe, visualize, and translate uncertainties in rese
 
 ## Citation
 
-Rosenberg, D. (2020). Colorado River Fitures - Code Projects: Lake Powell Water Surface Elevations for Release Temperature Scenarios. Utah State University. Logan, Utah. https://github.com/dzeke/ColoradoRiverFutures/tree/master/LakePowellTemperatureScenarios.
+Rosenberg, D. (2020). Colorado River Fitures - Code Projects: How much water to store in Lake Powell to benefit native fish of the Grand Canyon? Utah State University. Logan, Utah. https://github.com/dzeke/ColoradoRiverFutures/tree/master/LakePowellTemperatureScenarios.
 
 ## Contents
 
-Figure 1 - Temperature suitability for cold-water non-native, water-water native, and warm-water nonnative fish.
+Figure 1 - Temperature suitability for cold-water non-native, water-water native, and warm-water nonnative fish. Not very belieable data. Need to update. 
 
 Figure 2 - Water Surface Elevation vs. Turbine release temperatures by month which is the Dibble et al (unpublished) spreadsheet model output. One of my main takeaways from Dibble et al (unpublished) model is that the data can be sliced by month.
 
@@ -328,7 +330,7 @@ ggplot(dfFishTempSuitPlot) +
 
 ```
 
-## Figure 1. Grand Canyon fish temperature suitability: growth, incubation, and ovulation stages (Valdex et al, 2013)
+## Figure 1. Grand Canyon fish temperature suitability: growth, incubation, and ovulation stages (Valdex et al, 2013). Not very belieable data. Need to update.
 
 \newpage
 
@@ -765,7 +767,7 @@ ggplot(data=dfTestElevBar) +  #[order(dfTestElevBar$TempCategory, decreasing = T
   geom_bar(aes(x=Month.x, y=ElevationAdd, fill=TempCategory, group = TempCategory, alpha = Alpha), stat = "identity") +
   #geom_ribbon(aes(x=Month.x, ymin= minElevation, ymax=maxElevation, fill=as.factor(Temperature))) +
   
-  scale_fill_manual(values = c(palBlues[5], "blue", "pink","red","white"), breaks = cCategories[1:4], labels = cCategories[1:4]) +
+  scale_fill_manual(values = c("blue", palBlues[5], "pink","red","white"), breaks = cCategories[1:4], labels = cCategories[1:4]) +
 
   #scale_color_manual(values = c("blue","red")) +
   
@@ -918,7 +920,7 @@ ggplot(data=dfTestElevDeadPoolBar) +  #[order(dfTestElevBar$TempCategory, decrea
   geom_bar(aes(x=Month.x, y=ElevationAdd, fill=TempCategory, group = TempCategory, alpha = Alpha), stat = "identity") +
   #geom_ribbon(aes(x=Month.x, ymin= minElevation, ymax=maxElevation, fill=as.factor(Temperature))) +
   
-  scale_fill_manual(values = c(palBlues[5], "blue", "pink","red","white"), breaks = cCategories[1:4], labels = cCategories[1:4]) +
+  scale_fill_manual(values = c("blue", palBlues[5], "pink","red","white"), breaks = cCategories[1:4], labels = cCategories[1:4]) +
 
   #scale_color_manual(values = c("blue","red")) +
   
