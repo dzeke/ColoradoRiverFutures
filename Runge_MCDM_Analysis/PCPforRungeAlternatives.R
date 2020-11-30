@@ -203,5 +203,5 @@ dta.col <- dmat.color(corMatrixPrune) # get colors
 #Keep column order as is
 dta.o <- c(1:(ncol(RungeNumericPrune))) #order.single(corMatrixAbs)
 cpairs(RungeNumericPrune, dta.o, panel.colors=dta.col, gap=.5,
-       main="Correlation Matrix of Glen Canyon Dam Adaptive Management Objectives") 
+       main="Correlation Matrix of Glen Canyon Dam Adaptive Management Objectives", upper.panel = NULL) 
 
