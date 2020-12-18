@@ -54,5 +54,5 @@ Additionally generates plots that show the daily range of release temperature (P
 ## Recommended Citation
 Rosenberg, D. (2020). Colorado River Fitures - Code Projects: How does Lake Powell water storage influence release temperatures and Grand Canyon fishes? Utah State University. Logan, Utah. https://github.com/dzeke/ColoradoRiverFutures/tree/master/LakePowellTemperatureScenarios.
 
-## Working version of repository
+## Working version of repository (for up-to-date version of code/data/etc)
 https://github.com/dzeke/ColoradoRiverFutures/tree/master/LakePowellTemperatureScenarios.
