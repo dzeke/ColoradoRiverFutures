@@ -1315,3 +1315,202 @@ pPlot <- pPlot +
           geom_text_repel(data=dfPaleoEvents, aes(x=`Average Flow (maf)`, y=InitStor, label=dfPaleoEvents$YearRange), size = 5)
 
 print(pPlot)
+
+############################################################
+##
+## What steady reservoir releases over a specified number of years will keep the reservoir above a target storage level given a steady inflow and starting storage?
+##
+#########################################
+
+#Define the function to calculate
+SteadyRelease <- function(StartStorage,TargetStorage,SteadyInflow,NumYears,eRate,ResArea,ResVolume,StorageErrorCrit) {
+  #StartStorage = starting reservoir storage volume
+  #TargetStorage = target reservoir storage volume
+  #SteadyInflow = steady inflow volume each and every year
+  #NumYears = Number of years to reach the storage target
+  #eRate = evaporation rate in length/year
+  #ResArea = reservoir area from bathymetry curve
+  #ResVolume = reservoir volume from bathymetry curve
+  #StorageErrorCrit = the storage volume error criteria. When the difference between the simulated final reservoir storage value
+  #       obtained with the steady release and the target storage falls below this criteria, the routine will
+  #       stop iterating to find a new steady release value.
+  
+  #The guiding formula is:
+  #     [Storage Target] = [Start Storage] + [Num Years] * ([Inflow] - [Release] - [Evaporation])
+  # Solving for Release and noting Evaporation is an average of evaporation in Year 1, Year 2, ..., Year n
+  #     [Release] = [Inflow] - (Evap_1 + Evap_2 + ... + Evap_n - [Storage Target] + [Start Storage])/[Num Years]
+  
+  # Calculate evaporation volumes in each year as a linear interpolation off the reservoir bathymetry curve from
+  # each expected reservoir storage volume
+  # Expected storage volumes
+  sVols <- seq(StartStorage,TargetStorage,by=(TargetStorage-StartStorage)/NumYears)
+  #evaporation volumes
+  evaps <- eRate*interpNA(x=ResVolume, y=ResArea,xi = sVols)
+  
+  #print(sVols)
+  #print(evaps)
+  
+  #Now calculate the steady annual release. Two vresions. One when Start and Target Storage are above 
+  #The critical threshold. A second when they are below (no change in storage, steady storage)
+  if (abs(StartStorage - TargetStorage) > StorageErrorCrit) {
+      #When Start and Target storage are different
+      CurrSteadyRelease <- SteadyInflow - (sum(evaps) - StartStorage + TargetStorage) / NumYears
+  } else {
+      #When start storage and target storage are numerically the same
+      CurrSteadyRelease <- SteadyInflow - evaps[1]
+  }
+  
+  #print(CurrSteadyRelease)
+  
+  maxVol = max(ResVolume) #Maximum volume of reservoir
+  
+  #Simulate the steady release, determine the actual ending storage, and check for differences
+  #between the simulated storage and target storage that are larger than the StorageErrorCrit
+  #If the error is above the StorageErrorCrit iterate to reduce the difference below the StorageErrorCritSet the initial
+  #Start the difference above the StorageErrorCrit so we enter the while loop at least once 
+
+  StorageDifference <- StorageErrorCrit + 1
+  
+  while(StorageDifference > StorageErrorCrit) {
+    
+    #Simulate the current steady release
+    tSimTime <- TimeToReservoirTarget(Sinit = StartStorage, inflow = SteadyInflow, deliveryVolume = rep(CurrSteadyRelease,2), 
+                                      deliveryResStorage = c(0,maxVol), eRate = eRateToUse, ResArea = ResArea, 
+                                      ResVolume = ResVolume, MaxIts = NumYears+1, sMethodRelease = "constant", sMinTarget = 0, sMaxTarget = maxVol, startYear = 0)
+    #Pull out the ending storage
+    SimStorage <- tSimTime$dfTimeResults$Storage[NumYears+1]
+    #Calculate the difference between the simulated storage and the target storage
+    StorageDifference <- abs(SimStorage - TargetStorage)
+    
+    #print(StorageDifference)
+
+    if (StorageDifference > StorageErrorCrit) {
+      #Adjust the Steady Releaset
+      CurrSteadyRelease <- CurrSteadyRelease + (SimStorage - TargetStorage) / (NumYears)
+      }
+    }
+  
+  SteadyRelease <- CurrSteadyRelease
+  
+  }
+
+#Test the function
+#Case 1: Decline to target
+tReleaseTest <- SteadyRelease(StartStorage = 10e6, TargetStorage = 5e6, NumYears = 5, SteadyInflow = 8e6, eRate = eRateToUse,  ResArea = dfMeadElevStor$`Area (acres)`, 
+                          ResVolume = dfMeadElevStor$`Live Storage (ac-ft)`, StorageErrorCrit = 10000)
+
+#Case 2: Increase to target
+tReleaseTest <- SteadyRelease(StartStorage = 5e6, TargetStorage = 10e6, NumYears = 3, SteadyInflow = 8e6, eRate = eRateToUse,  ResArea = dfMeadElevStor$`Area (acres)`, 
+                              ResVolume = dfMeadElevStor$`Live Storage (ac-ft)`, StorageErrorCrit = 10000)
+
+
+#Simulate the steady release to check
+tTimeTo <- TimeToReservoirTarget(Sinit = 5e6, inflow = 8e6, deliveryVolume = rep(tReleaseTest,2), 
+                                     deliveryResStorage = c(0,25e6), eRate = eRateToUse, ResArea = dfMeadElevStor$`Area (acres)`, 
+                                     ResVolume =dfMeadElevStor$`Live Storage (ac-ft)`, MaxIts = 50, sMethodRelease = "constant", sMinTarget = 0, sMaxTarget = 25e6, startYear = 2020)
+#Calculate the difference between the simulated storage and target storage
+tTimeTo$dfTimeResults$Storage[4] - 10e6
+
+##Another test with 1, 1, 5, 4e6
+
+tReleaseTest <- SteadyRelease(StartStorage = 1e6, TargetStorage = 1e6, NumYears = 3, SteadyInflow = 4e6, eRate = eRateToUse,  ResArea = dfMeadElevStor$`Area (acres)`, 
+                              ResVolume = dfMeadElevStor$`Live Storage (ac-ft)`, StorageErrorCrit = 10000)
+
+
+tTimeTo <- TimeToReservoirTarget(Sinit = 1e6, inflow = 4e6, deliveryVolume = rep(3.770e6,2), 
+                                 deliveryResStorage = c(0,25e6), eRate = eRateToUse, ResArea = dfMeadElevStor$`Area (acres)`, 
+                                 ResVolume =dfMeadElevStor$`Live Storage (ac-ft)`, MaxIts = 50, sMethodRelease = "constant", sMinTarget = 0, sMaxTarget = 25e6, startYear = 2020)
+
+tTimeTo$dfTimeResults$Storage
+
+### Let's simulate for a large number of scenarios of Initial Storage, Storage Targets, Inflow Scenarios, and Years to reaach the target
+#Create the master dataframe of results
+dfReleaseSimulations <- data.frame(StartStorage=0, StorageTarget=0, Inflow = 0, Years=0, Release=0)
+
+#Initial Storage scenarios (MAF)
+cInitStorageScens <- seq(1,tMaxVol,by=2)*1e6
+#Storage targets
+cStorageTargets <- seq(1, 15, by=1)*1e6
+#Steady Inflow scenarios (MAF per year)
+cInflowScens <- seq(4,14, by=1)*1e6
+#Years to Target Storage
+cYearsToTarget <- seq(1,10, by=1)
+#Record the number of scenarios
+nFlowScens <- length(cInflowScens)
+nInitStorScens <- length(cInitStorageScens)
+nYearsToTarget <- length(cYearsToTarget)
+
+#Loop over initial storage values
+for (tInitStorage in cInitStorageScens) {
+  
+  print(tInitStorage)
+  
+  #Loop over target storage values
+  for (tStorageTarget in cStorageTargets) {
+    
+    #Loop over number of years to reach target
+    for (tNumYears in cYearsToTarget) {
+  
+      #Loop over steady natural inflow values (stress tests)
+      for (tInflow in cInflowScens){
+        
+        paste(tInitStorage, tStorageTarget, tNumYears,tInflow, sep=" ")
+        
+        tRelease <- SteadyRelease(StartStorage = tInitStorage, TargetStorage = tStorageTarget, NumYears = tNumYears, SteadyInflow = tInflow, eRate = eRateToUse,  ResArea = dfMeadElevStor$`Area (acres)`, 
+                                      ResVolume = dfMeadElevStor$`Live Storage (ac-ft)`, StorageErrorCrit = 10000)
+ 
+        dfTempRecord <- data.frame(StartStorage=tInitStorage, StorageTarget=tStorageTarget, Inflow = tInflow, Years=tNumYears, Release=tRelease)
+        dfReleaseSimulations <- rbind(dfReleaseSimulations, dfTempRecord)
+        }
+    }
+  }
+}
+
+
+
+
+#Plot as a contour plot of x= steady inflow, y = storage, a horizonal line of the storage target, and contours of release
+#Select a target that is the elevation 1025
+targetStorageVal <- 8e6 #dfMeadPoolsPlot$stor_maf[4]
+YearToUse <- 3
+
+ggplot() +
+  geom_polygon(data = dfPolyScens, aes(x = Inflow + dfInflowAxes[i,2]/1e6, y = MeadVol/1e6, group = id, fill = as.factor(dfPolyScens$DumVal)), show.legend = F) +
+  
+  geom_contour(data=dfReleaseSimulations %>% filter(StorageTarget == targetStorageVal, Years == YearToUse), aes(x=Inflow/1e6,y= StartStorage/1e6, z = Release/1e6), binwidth=2, size=1.5)   +
+  geom_text_contour(data=dfReleaseSimulations %>% filter(StorageTarget == targetStorageVal, Years == YearToUse), aes(x=Inflow/1e6,y= StartStorage/1e6, z = Release/1e6), binwidth=2, size=6, check_overlap = TRUE, min.size = 5) +
+  #geom_label(data=dfStatusPositions, aes(x = MidInflow/1e6 , y = tMaxVol+2, label = Label, fontface="bold", color=Status), size=6, angle = 0) + 
+  
+  #Label the releases
+  #geom_label(data=dfReleaseSimulations %>% filter(StorageTarget == targetStorageVal, Years == YearToUse), aes(x=Inflow/1e6,y= StartStorage/1e6, label = round(Release/1e6)), binwidth=4, size=6)   +
+  
+  
+  
+  #Add a horizontal line for the storage target
+  geom_hline(yintercept = targetStorageVal/1e6, size = 2) + 
+  
+  #Y-axis: Active storage on left, Elevation with labels on right 
+  scale_y_continuous(breaks = seq(0,tMaxVol,by=5), labels = seq(0,tMaxVol,by=5), limits = c(0, tMaxVol+3), 
+                     sec.axis = sec_axis(~. +0, name = "Mead Level (feet)", breaks = dfMeadPoolsPlot$stor_maf, labels = dfMeadPoolsPlot$labelSecY)) +
+  scale_x_continuous(breaks = xFlowScaleCurr, labels = xFlowScaleCurr) +
+  #limits = c(0,as.numeric(dfMaxStor %>% filter(Reservoir %in% c("Mead")) %>% select(Volume))),
+  #scale_y_continuous(breaks = seq(0,50,by=10), labels = seq(0,50,by=10), limits = c(0, 50)) +
+  
+  #Color scale for polygons - increasing red as go to lower levels
+  scale_fill_manual(breaks = c(2,1),values = c(palReds[3],palReds[2]),labels = dfPolyLabel$Label ) + 
+  #scale_fill_manual(guide="Guide2", breaks = c("Top","Middle","Bottom"),values = c("Blue","Green","Red"),labels = c("Fill (years)","Steady volume (maf)","To 1,025 (years)" )) + 
+  scale_color_manual(breaks = c("Top","Middle","Bottom"), values=c("red","purple","blue"), labels=c("To Fill (years)","Steady volume (maf)","To 1,025 (years)")) +
+  
+  
+  theme_bw() +
+  
+  scale_size(guide="none") +
+  
+  labs(x=paste(dfInflowAxes[i,1]," (MAF per year)"), y="Mead Active Storage (MAF)") +
+  #theme(text = element_text(size=20), legend.title=element_blank(), legend.text=element_text(size=18),
+  #      legend.position = c(0.8,0.7))
+  theme(text = element_text(size=20), 
+        legend.position = "none")
+
+
+

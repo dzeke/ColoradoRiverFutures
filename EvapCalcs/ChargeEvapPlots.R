@@ -490,7 +490,7 @@ ggplot() +
   geom_step(data=dfCutbacks,aes(x=2*MeadActiveVolume/1000000,y=Total2007ISG/1000000, color = "ISG", linetype="ISG"), size=2, direction="vh") +
   geom_step(data=dfCutbacks,aes(x=2*MeadActiveVolume/1000000,y=TotalDCP/1000000, color = "DCP", linetype="DCP"), size=2, direction="vh") +
   
-  scale_color_manual(name="Guide1",values = c("Blue", "Black", "Red"),breaks=c("DCP", "ISG", "Evaporation"), labels= c("Drought Contingency Plan (2019) Cutbacks", "Interim Shortage Guidelines (2008) Cutbacks", paste("Evaporation",strEvapRangeComb))) +
+  scale_color_manual(name="Guide1",values = c("Red", "Blue", "Black"),breaks=c("DCP", "ISG", "Evaporation"), labels= c("Drought Contingency Plan (2019) Cutbacks", "Interim Shortage Guidelines (2008) Cutbacks", paste("Evaporation",strEvapRangeComb))) +
   scale_linetype_manual(name="Guide1",values=c("Evaporation"="twodash","DCP"="solid","ISG"="longdash"), breaks=c("DCP", "ISG", "Evaporation"), labels= c("Drought Contingency Plan (2019) Cutbacks", "Interim Shortage Guidelines (2008) Cutbacks", paste("Evaporation",strEvapRangeComb))) +
   
   #scale_color_manual(values = c("Blue", "Black", "Red"), breaks=c("DCP", "ISG", "Evaporation"), labels= c("Drought Contingency Plan (2019) Cutbacks", "Interim Shortage Guidelines (2008) Cutbacks", paste("Evaporation",strEvapRangeComb))) +
