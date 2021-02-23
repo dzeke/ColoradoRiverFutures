@@ -1,0 +1,29 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1614105179422.000,
+    "dirty" : false,
+    "encoding" : "",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "CC50C5F4",
+    "lastKnownWriteTime" : 2325618056551727104,
+    "last_content_update" : 1614105179422,
+    "path" : null,
+    "project_path" : null,
+    "properties" : {
+        "cacheKey" : "3ADB660C",
+        "caption" : "dfPlotData",
+        "contentUrl" : "grid_resource/gridviewer.html?env=&obj=dfPlotData&cache_key=3ADB660C",
+        "displayedObservations" : "10",
+        "environment" : "",
+        "object" : "dfPlotData",
+        "preview" : "0",
+        "totalObservations" : "10",
+        "variables" : "5"
+    },
+    "relative_order" : 4,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_dataframe"
+}

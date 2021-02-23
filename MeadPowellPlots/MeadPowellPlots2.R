@@ -630,6 +630,8 @@ dfFloodPoolsMelt <- melt(dfFloodPools,id.vars = c("month_num"))
 dfMeadPoolsPlot2 <- dfMeadPoolsPlot
 dfMeadPoolsPlot2[9,8] <- "1192 - Max. Req. Flood Pool"
 dfMeadPoolsPlot2[10,8] <- "1218 - Min. Req. Flood Pool"
+#Remove 1083 minimum power pool
+dfMeadPoolsPlot2 <- dfMeadPoolsPlot2[c(seq(1,5),seq(7,11)),]
 
 #Create the month ticks
 cMonths <- 1:12
@@ -639,11 +641,11 @@ cMonthsLabels <- month.abb[cMonths]
 ggplot() +
   
   #Zone levels
-  geom_line(data=dfPlotData,aes(x=Month,y=stor_maf, color = name), size=1.25) +
+  geom_line(data=dfPlotData,aes(x=Month,y=stor_maf, group = as.factor(level), color = as.factor(level)), size=1.25) +
   #Mead storage
   geom_line(data=dfMeadHist,aes(x=BeginOfMon,y=Stor/1e6), size=2) +
   
-  scale_color_manual(values = palBlues[10:-1:2]) +
+  scale_color_manual(values = palBlues[seq(5,10)]) +
   #geom_area(data=dfPlotData,aes(x=month,y=stor_maf, fill = variable), position='stack') +
   #scale_fill_manual(values = palBlues[7:-1:2]) +
   #Flood pools as a function of upstream storage
