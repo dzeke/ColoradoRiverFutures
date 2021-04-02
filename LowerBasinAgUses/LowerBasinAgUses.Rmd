@@ -1,5 +1,5 @@
 ---
-title: "Lower Basin Water Use from CRSS"
+title: "Lower Basin Water Uses from CRSS"
 author: "David E. Rosenberg"
 date: "April 1, 2021"
 output: pdf_document
@@ -11,7 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Introduction
 
-This is an R Markdown document. This document helps visualize Lower Basin consumptive use input data from the Colorado River Simulation System model (CRSS)(version January 2021). Three plots show:
+This is an R Markdown document. This document helps visualize Lower Basin consumptive uses from input data for Colorado River Simulation System model (CRSS)(version January 2021). Three plots show:
 
  1. Monthly consumptive use requests
  2. Annual consumptive use requests
@@ -19,10 +19,10 @@ This is an R Markdown document. This document helps visualize Lower Basin consum
 
 The last plot can help estimate the water volume potentially saved if Lower Basin districts stop summer season water use and focus on irrigating higher value winter crops (dark leafy greens).
 
-Data comes from The main CRSS data file  DIT_CRSS_LBshortageEIS_2016UCRC_v1.8. This data represents the 2016 Upper Colorado River schedule (for upper basin states).
+Data comes from The main CRSS data file DIT_CRSS_LBshortageEIS_2016UCRC_v1.8. This data represents the 2016 Upper Colorado River schedule (for upper basin states).
 
 ## Requested Citation:
-Rosenberg (2021). "Lower Basin Water Use from CRSS". 
+Rosenberg (2021). "Lower Basin Water Uses from CRSS". https://github.com/dzeke/ColoradoRiverFutures/tree/master/LowerBasinAgUses.
 
 ```{r LBAgplots, echo=FALSE, warning=FALSE, message=FALSE}
 
@@ -247,7 +247,7 @@ ggplot() +
    #scale_fill_manual(name="Guide1",values = c(palBlues(15))) +
   #scale_color_manual(name="Guide2", values=c("Black")) +
   
-  scale_x_continuous(limits = c(2020,2030), breaks = seq(2020,2030, by=2)) +
+  scale_x_continuous(limits = c(2020,2030), breaks = seq(2020,2030, by=4)) +
   #scale_y_continuous(breaks=seq(0,3,by=1),labels=seq(0,3,by=1), sec.axis = sec_axis(~. +0, name = "", breaks = c(nMaxBalance$Total[2])/1e6, labels = c("Max Balance"))) +
   
   #guides(fill = guide_legend(keywidth = 1, keyheight = 1), color=FALSE) +
@@ -287,7 +287,7 @@ ggplot() +
   #scale_fill_manual(name="Guide1",values = c(palBlues(15))) +
   #scale_color_manual(name="Guide2", values=c("Black")) +
   
-  scale_x_continuous(limits = c(2020,2030), breaks = seq(2020,2030, by=2)) +
+  scale_x_continuous(limits = c(2020,2030), breaks = seq(2020,2030, by=4)) +
   #scale_y_continuous(breaks=seq(0,3,by=1),labels=seq(0,3,by=1), sec.axis = sec_axis(~. +0, name = "", breaks = c(nMaxBalance$Total[2])/1e6, labels = c("Max Balance"))) +
   
   #guides(fill = guide_legend(keywidth = 1, keyheight = 1), color=FALSE) +
