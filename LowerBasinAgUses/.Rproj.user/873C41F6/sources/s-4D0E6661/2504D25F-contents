@@ -22,7 +22,7 @@ The last plot can help estimate the water volume potentially saved if Lower Basi
 Data comes from The main CRSS data file DIT_CRSS_LBshortageEIS_2016UCRC_v1.8. This data represents the 2016 Upper Colorado River schedule (for upper basin states).
 
 ## Requested Citation:
-Rosenberg (2021). "Lower Basin Water Uses from CRSS". https://github.com/dzeke/ColoradoRiverFutures/tree/master/LowerBasinAgUses.
+Rosenberg (2021). "Lower Basin Water Uses from CRSS". Utah State University, Logan, Utah. https://github.com/dzeke/ColoradoRiverFutures/tree/master/LowerBasinAgUses.
 
 ```{r LBAgplots, echo=FALSE, warning=FALSE, message=FALSE}
 
