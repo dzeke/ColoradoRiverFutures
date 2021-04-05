@@ -524,6 +524,8 @@ dfPowellPools[4,c("variable")] <- 'Dead Pool'
 dfPowellPools$Label <- paste(dfPowellPools$variable,'\n',round(dfPowellPools$level,0))
 
 #Plot #7. Powell Evaporated volume versus Powel Active storage
+#Write the data out to CSV
+
 ggplot() +
   geom_errorbar(data=dfPowellEvap, aes(x=`Live Storage (ac-ft)`/1000000,ymin=EvapVolMaxLo/1000000, ymax=EvapVolMaxUp/1000000), width=.2,
                 position=position_dodge(0.2)) +

@@ -7,8 +7,11 @@
 #
 # Updated June 23, 2020 to include annual deposits and withdraws as year-to-year differnces
 #
+# Updated April 4, 2021 to look at ICS to DCP conversion
+
+#
 # David E. Rosenberg
-# February 11, 2020
+# April 4, 2021
 # 
 # Utah State University
 # david.rosenberg@usu.edu
@@ -85,6 +88,8 @@ if (!require(stringr)) {
 # Read in state balances each year
 sExcelFile <- 'IntentionallyCreatedSurplus-Summary.xlsx'
 dfICSBalance <- read_excel(sExcelFile, sheet = "Sheet1",  range = "B6:F16")
+dfICStoDCP <- read_excel(sExcelFile, sheet = "ICStoDCP",  range = "A2:M14")
+dfLimits <- read_excel(sExcelFile, sheet = "Sheet1",  range = "A22:E25")
 
 #Read in max balance
 nMaxBalance <- read_excel(sExcelFile, sheet = "Sheet1",  range = "A22:E25")
@@ -101,7 +106,19 @@ dfICSBalanceMelt <- melt(data = dfICSBalance,id.vars = "Year", measure.vars = cC
 
 palBlues <- brewer.pal(9, "Blues")
 
-#Plot #1. Stacked bar chart of account balance by state by year
+#Plot #1. Stacked bar chart of account balance by state by year. Add individual state limits as secondary y axis
+# Prepare state limits as a cumulative amount
+cColNamesLimits <- colnames(dfLimits)
+dfLimitsMelt <- melt(data=dfLimits, id.vars="New levels with DCP", measure.vars = cColNamesLimits[2:5]) 
+dfMaxBalanceCum = dfLimitsMelt %>% filter(`New levels with DCP` == "Max Balance (AF)", variable != 'Total')
+#Reorder so Arizona is on top
+dfMaxBalanceCum$Order <- c(3,2,1)
+dfMaxBalanceCum <- dfMaxBalanceCum[order(dfMaxBalanceCum$Order),]
+#Calculate the cumulative total
+dfMaxBalanceCum$CumVal <- cumsum(dfMaxBalanceCum$value)
+#Replace the Arizona label
+dfMaxBalanceCum$StateAsChar <- as.character(dfMaxBalanceCum$variable)
+dfMaxBalanceCum$StateAsChar[3] <- "Total/Arizona"
 
 ggplot() +
   
@@ -112,8 +129,14 @@ ggplot() +
   scale_color_manual(name="Guide2", values=c("Black")) +
   
   scale_x_continuous(breaks=seq(min(dfICSBalanceMelt$Year),max(dfICSBalanceMelt$Year),by=2),labels=seq(min(dfICSBalanceMelt$Year),max(dfICSBalanceMelt$Year),by=2)) +
-  scale_y_continuous(breaks=seq(0,3,by=1),labels=seq(0,3,by=1), sec.axis = sec_axis(~. +0, name = "", breaks = c(nMaxBalance$Total[2])/1e6, labels = c("Max Balance"))) +
-
+  
+  #Secondary scale with total max balance
+  #scale_y_continuous(breaks=seq(0,3,by=1),labels=seq(0,3,by=1), sec.axis = sec_axis(~. +0, name = "", breaks = c(nMaxBalance$Total[2])/1e6, labels = c("Max Balance"))) +
+  
+  #Secondary scale with individual state max balances
+  scale_y_continuous(breaks=seq(0,3,by=1),labels=seq(0,3,by=1), sec.axis = sec_axis(~. +0, name = "Maximum Balance", breaks = dfMaxBalanceCum$CumVal/1e6, labels = dfMaxBalanceCum$StateAsChar)) +
+  
+ 
   guides(fill = guide_legend(keywidth = 1, keyheight = 1), color=FALSE) +
   
   
@@ -122,7 +145,7 @@ ggplot() +
   labs(x="", y="Intentionally Created Surplus\nAccount Balance\n(MAF)") +
   theme(text = element_text(size=20),  legend.title = element_blank(), 
           legend.text=element_text(size=18),
-          legend.position= c(1.075,0.5))
+          legend.position= c(0.1,0.85))
   
 
 #Plot #2. Stacked bar chart of deposits to ICS accounts by state by year
@@ -155,6 +178,85 @@ ggplot() +
   theme_bw() +
   
   labs(x="", y="Deposit to Intentionally Created Surplus Account\n(MAF per year)") +
+  theme(text = element_text(size=20),  legend.title = element_blank(), legend.text=element_text(size=18),
+        legend.position= c(1.075,0.5))
+
+
+# Plot Years ICS balance can fund DCP obligation
+# Ratio of ICS balance to DCP obligation (Years)
+dfICStoDCP$ElevationText <- paste(dfICStoDCP$`Mead Elevation (ft)`, "feet")
+cColNamesICStoDCP <- colnames(dfICStoDCP)
+
+dfICStoDCPMelt <- melt(data = dfICStoDCP,id.vars = "ElevationText", measure.vars = cColNamesICStoDCP[5:7])
+
+ggplot(data=dfICStoDCPMelt %>% filter((ElevationText == "1025 feet") | (ElevationText == "1045 feet") )) +
+  
+  geom_bar(aes(fill=variable,y=value,x=variable), position=position_dodge(), stat="identity") +
+
+  scale_fill_manual(name="Guide1",values = c(palBlues[3],palBlues[6],palBlues[9]),breaks=cColNamesICStoDCP[5:7], labels = cColNames[1:3]) +
+
+  scale_x_discrete(labels = cColNames[1:3]) +
+
+  facet_wrap( ~ ElevationText) +
+  
+  guides(fill = guide_legend(keywidth = 1, keyheight = 1), color = FALSE) +
+
+  theme_bw() +
+  
+  labs(x="", y="Years 2019 ICS balance can fund\nDCP obligation") +
+  theme(text = element_text(size=20),  legend.title = element_blank(), legend.text=element_text(size=18),
+        legend.position= c(1.075,0.5))
+
+
+### Ratio of ICS max withdrawal to DCP obligation
+dfICStoDCPMeltMaxWithdrawal <- melt(data = dfICStoDCP,id.vars = "ElevationText", measure.vars = cColNamesICStoDCP[8:10])
+
+ggplot(data=dfICStoDCPMeltMaxWithdrawal %>% filter((ElevationText == "1025 feet") | (ElevationText == "1045 feet") )) +
+  
+  geom_bar(aes(fill=variable,y=value,x=variable), position=position_dodge(), stat="identity") +
+
+  scale_fill_manual(name="Guide1",values = c(palBlues[3],palBlues[6],palBlues[9]),breaks=cColNamesICStoDCP[8:10], labels = cColNames[1:3]) +
+
+  scale_x_discrete(labels = cColNames[1:3]) +
+
+  scale_y_continuous(labels = scales::percent) + 
+ 
+  facet_wrap( ~ ElevationText) +
+  
+  guides(fill = guide_legend(keywidth = 1, keyheight = 1), color = FALSE) +
+  
+  
+  theme_bw() +
+  
+  labs(x="", y="Ratio of ICS max withdrawal\nto DCP obligation") +
+  theme(text = element_text(size=20),  legend.title = element_blank(), legend.text=element_text(size=18),
+        legend.position= c(1.075,0.5))
+
+
+### Ratio of ICS max deposit to DCP obligation
+dfICStoDCPMeltMaxDeposit <- melt(data = dfICStoDCP,id.vars = "ElevationText", measure.vars = cColNamesICStoDCP[11:13])
+
+ggplot(data=dfICStoDCPMeltMaxDeposit %>% filter((ElevationText == "1025 feet") | (ElevationText == "1045 feet") )) +
+  
+  geom_bar(aes(fill=variable,y=value,x=variable), position=position_dodge(), stat="identity") +
+  
+  scale_fill_manual(name="Guide1",values = c(palBlues[3],palBlues[6],palBlues[9]),breaks=cColNamesICStoDCP[11:13], labels = cColNames[1:3]) +
+  #scale_color_manual(name="Guide2", values=c("Black","Black")) +
+  
+  #scale_fill_continuous(name="Guide1",values = c(palBlues[6],palBlues[9])) +
+  
+  scale_x_discrete(labels = cColNames[1:3]) +
+  #scale_x_continuous(breaks=seq(min(dfICSDepositMelt$Year),max(dfICSDepositMelt$Year),by=2),labels=seq(min(dfICSDepositMelt$Year),max(dfICSDepositMelt$Year),by=2)) +
+  scale_y_continuous(labels = scales::percent) + 
+  
+  facet_wrap( ~ ElevationText) +
+  
+  guides(fill = guide_legend(keywidth = 1, keyheight = 1), color = FALSE) +
+  
+  
+  theme_bw() +
+  
+  labs(x="", y="Ratio of ICS max deposit\nto DCP obligation") +
   theme(text = element_text(size=20),  legend.title = element_blank(), legend.text=element_text(size=18),
         legend.position= c(1.075,0.5))
 

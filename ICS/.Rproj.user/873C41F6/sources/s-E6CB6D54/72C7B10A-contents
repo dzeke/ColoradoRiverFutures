@@ -192,7 +192,7 @@ CumDayDeath.r=function(dfData,title,pop,SecAxisType=NULL, TargetPop=0.5){
     ggtitle(title)+
     theme(plot.title = element_text(hjust = 0.5),legend.position = c(0.2,0.85),legend.title = element_blank(), text = element_text(size = 14))+
     xlab("")+ylab("Number of People")+
-    scale_color_manual(breaks = c("Cumulative Infections","1 Day Infections", "Cumulative Deaths"), values=c("red", "blue","black")) +
+    scale_color_manual(breaks = c("Cumulative Infections","1 Day Infections", "Cumulative Deaths"), values=c("black", "red","blue")) +
     guides(fill = FALSE)
     
     print(pPlot)
@@ -201,9 +201,9 @@ CumDayDeath.r=function(dfData,title,pop,SecAxisType=NULL, TargetPop=0.5){
 
 
 
-dfCountiesToPlot <- data.frame(county = c("Cache", "Box Elder", "Weber", "Summit", "Contra Costa","Tompkins"),
-                               state = c("Utah","Utah","Utah","Utah", "California", "New York"),
-                               ExtraTitleText = c(" and https://brhd.org/coronavirus","","","","","") )
+dfCountiesToPlot <- data.frame(county = c("Cache", "Box Elder", "Weber", "Summit", "Santa Cruz", "Contra Costa","Tompkins","Middlesex"),
+                               state = c("Utah","Utah","Utah","Utah", "California", "California", "New York", "New Jersey"),
+                               ExtraTitleText = c(" and https://brhd.org/coronavirus","","","","","","","") )
 
 sPrimaryDataSource <- "Data from https://github.com/nytimes/covid-19-data"
 
