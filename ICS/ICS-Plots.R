@@ -240,6 +240,9 @@ ggplot(data=dfICStoDCPMeltMaxDeposit %>% filter((ElevationText == "1025 feet") |
   
   geom_bar(aes(fill=variable,y=value,x=variable), position=position_dodge(), stat="identity") +
   
+  #Add a horizontal line for 100%
+  geom_hline(yintercept = 1,linetype="dashed",color="red",size = 0.75) +
+  
   scale_fill_manual(name="Guide1",values = c(palBlues[3],palBlues[6],palBlues[9]),breaks=cColNamesICStoDCP[11:13], labels = cColNames[1:3]) +
   #scale_color_manual(name="Guide2", values=c("Black","Black")) +
   
@@ -259,5 +262,57 @@ ggplot(data=dfICStoDCPMeltMaxDeposit %>% filter((ElevationText == "1025 feet") |
   labs(x="", y="Ratio of ICS max deposit\nto DCP obligation") +
   theme(text = element_text(size=20),  legend.title = element_blank(), legend.text=element_text(size=18),
         legend.position= c(1.075,0.5))
+
+
+### Ratio of largest ICS deposit on record to DCP obligation
+# Get the maximum historical ICS contributions
+dfICSMaxDeposit <- dfICSDeposit %>% summarize(maxAZ = max(Arizona), maxCA = max(California), maxNV = max(Nevada))
+# Get the DCP contributions for 1045 and 1025 feet
+dfDCPcontribute <- dfICStoDCP %>% filter(`Mead Elevation (ft)` == 1045 | `Mead Elevation (ft)` == 1025 )
+#Join the two data frames
+dfICStoDCPRatio <- dfDCPcontribute
+dfICStoDCPRatio$ICSAZ <- dfICSMaxDeposit$maxAZ
+dfICStoDCPRatio$ICSCA <- dfICSMaxDeposit$maxCA
+dfICStoDCPRatio$ICSNV <- dfICSMaxDeposit$maxNV
+
+dfICStoDCPRatio$AZratio <- dfICStoDCPRatio$ICSAZ / dfICStoDCPRatio$`DCP-AZ Reduction (ac-ft)`
+dfICStoDCPRatio$CAratio <- dfICStoDCPRatio$ICSCA / dfICStoDCPRatio$`DCP-CA Reduction (ac-ft)`
+dfICStoDCPRatio$NVratio <- dfICStoDCPRatio$ICSNV / dfICStoDCPRatio$`DCP-NV Reduction (ac-ft)`
+dfICStoDCPRatio$ElevationText <- paste(dfICStoDCPRatio$`Mead Elevation (ft)`," feet")
+
+cNamesRatio <- colnames(dfICStoDCPRatio)
+dfICStoDCPRatioMelt <- melt(data = dfICStoDCPRatio,id.vars = "ElevationText", measure.vars = cNamesRatio[18:20])
+
+
+
+ggplot(data=dfICStoDCPRatioMelt ) +
+  
+  geom_bar(aes(fill=variable,y=value,x=variable), position=position_dodge(), stat="identity") +
+  
+  #Add a horizontal line for 100%
+  geom_hline(yintercept = 1,linetype="dashed",color="red",size = 0.75) +
+  
+    scale_fill_manual(name="Guide1",values = c(palBlues[3],palBlues[6],palBlues[9]),breaks=cNamesRatio[18:20], labels = cColNames[1:3]) +
+  #scale_color_manual(name="Guide2", values=c("Black","Black")) +
+  
+  #scale_fill_continuous(name="Guide1",values = c(palBlues[6],palBlues[9])) +
+  
+  scale_x_discrete(labels = cColNames[1:3]) +
+  #scale_x_continuous(breaks=seq(min(dfICSDepositMelt$Year),max(dfICSDepositMelt$Year),by=2),labels=seq(min(dfICSDepositMelt$Year),max(dfICSDepositMelt$Year),by=2)) +
+  scale_y_continuous(labels = scales::percent) + 
+  
+  facet_wrap( ~ ElevationText) +
+  
+  guides(fill = guide_legend(keywidth = 1, keyheight = 1), color = FALSE) +
+  
+  
+  theme_bw() +
+  
+  labs(x="", y="Conservation Capacity\n(ratio of largest ICS deposit to DCP contribution)") +
+  theme(text = element_text(size=20),  legend.title = element_blank(), legend.text=element_text(size=18),
+        legend.position= c(1.075,0.5))
+
+
+
 
 
