@@ -253,9 +253,12 @@ cColNamesICStoDCP <- colnames(dfICStoDCP)
 
 dfICStoDCPMelt <- melt(data = dfICStoDCP,id.vars = "ElevationText", measure.vars = cColNamesICStoDCP[5:7])
 
-ggplot(data=dfICStoDCPMelt %>% filter((ElevationText == "1025 feet") | (ElevationText == "1045 feet") )) +
+ggplot(data=dfICStoDCPMelt %>% filter((ElevationText == "1025 feet") | (ElevationText == "1045 feet") | (ElevationText == "1090 feet") )) +
   
   geom_bar(aes(fill=variable,y=value,x=variable), position=position_dodge(), stat="identity") +
+  
+  #Add a horizontal line for 100%
+  geom_hline(yintercept = 1,linetype="dashed",color="red",size = 0.75) +
 
   scale_fill_manual(name="Guide1",values = c(palBlues[3],palBlues[6],palBlues[9]),breaks=cColNamesICStoDCP[5:7], labels = cColNames[1:3]) +
 
@@ -267,8 +270,10 @@ ggplot(data=dfICStoDCPMelt %>% filter((ElevationText == "1025 feet") | (Elevatio
 
   theme_bw() +
   
-  labs(x="", y="Years 2019 ICS balance can fund\nDCP obligation") +
-  theme(text = element_text(size=18),  legend.title = element_blank(), legend.text=element_text(size=18),
+  labs(x="", y="Years 2019 ICS balance can\nfund DCP obligation") +
+  theme(text = element_text(size=18),  legend.title = element_blank(),
+  axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5),
+  legend.text=element_text(size=18),
         legend.position= "none")
 
 ```
@@ -355,7 +360,7 @@ ggplot(data=dfICStoDCPMeltMaxDeposit %>% filter((ElevationText == "1025 feet") |
 # Get the maximum historical ICS contributions
 dfICSMaxDeposit <- dfICSDeposit %>% summarize(maxAZ = max(Arizona), maxCA = max(California), maxNV = max(Nevada))
 # Get the DCP contributions for 1045 and 1025 feet
-dfDCPcontribute <- dfICStoDCP %>% filter(`Mead Elevation (ft)` == 1045 | `Mead Elevation (ft)` == 1025 )
+dfDCPcontribute <- dfICStoDCP %>% filter(`Mead Elevation (ft)` == 1090 | `Mead Elevation (ft)` == 1045 | `Mead Elevation (ft)` == 1025 )
 #Join the two data frames
 dfICStoDCPRatio <- dfDCPcontribute
 dfICStoDCPRatio$ICSAZ <- dfICSMaxDeposit$maxAZ
@@ -395,8 +400,10 @@ ggplot(data=dfICStoDCPRatioMelt ) +
   
   theme_bw() +
   
-  labs(x="", y="Conservation Capacity\n(ratio of largest historical ICS deposit to\nDCP contribution)") +
-  theme(text = element_text(size=16),  legend.title = element_blank(), legend.text=element_text(size=16),
+  labs(x="", y="Conservation Capacity\n(ratio of largest historical ICS deposit\nto DCP contribution)") +
+  theme(text = element_text(size=16),  legend.title = element_blank(),
+        axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5),
+        legend.text=element_text(size=16),
         legend.position= "none")
 
 
