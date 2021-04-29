@@ -20,7 +20,7 @@ The interactive water budget similarly allows and tracks a similar set of decisi
 I recommended to move the Excel workbook into Google Docs so that users can play syncronously.
  
 ## Recommended Citation
-David E. Rosenberg (2021). "Encouraging more Conservation in the Colorado River Basin." Utah State University, Logan, UT. https://github.com/dzeke/ColoradoRiverFutures/tree/master/InteractiveWaterBudget-Powell.
+David E. Rosenberg (2021). "Encouraging more Conservation in the Colorado River Basin." Utah State University, Logan, UT. https://github.com/dzeke/ColoradoRiverFutures/tree/master/InteractiveWaterBudget.
 ## Explanation of Contents
 
 1. **InteractiveWaterBudget-PowellMead.xlsx** - The Excel file with the water budget model and directions for the role play. See the ReadMe-Directions worksheet first.
@@ -28,7 +28,7 @@ David E. Rosenberg (2021). "Encouraging more Conservation in the Colorado River 
 1. **OldVersions** - Folder with older versions of the interactive water budget.
 
 ## To Run
-1. Move the InteractiveLakePowellWaterBudgetAndRolePlay.xlsx file to Google docs and open as a Google Sheets
+1. Move the file InteractiveLWaterBudget-PowellMead.xlsx file to Google docs and open as a Google Sheets
 1. Follow the directions on the ReadMe-Directions worksheet.
 
 ## License
