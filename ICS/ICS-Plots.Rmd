@@ -152,6 +152,30 @@ cColNames <- colnames(dfICSBalance)
 #Melt the data so state columns become a variable
 dfICSBalanceMelt <- melt(data = dfICSBalance,id.vars = "Year", measure.vars = cColNames[1:3])
 
+#Calculate the Current ICS balance as a fraction of current Mead Storage
+# Data from: https://www.usbr.gov/lc/region/g4000/hourly/levels.html
+nCurrMeadStorage <- 9934*1000  # May 1, 2021
+
+nCurrICSTotal <- dfICSBalanceMelt %>% filter(Year == 2019) %>% summarise(Total = sum(value))
+
+#Lake Powell Unregulated inflow. Data from https://www.usbr.gov/uc/water/crsp/studies/images/PowellForecast.png
+dfLakePowellNatural <- data.frame (LakePowellFlow = c(16, 5, 5, 10.3, 10.1, 9.7, 12, 5, 13, 5.9))
+
+# Read in Paria flows each year
+sExcelFile <- 'Paria10yearFlow.xlsx'
+dfParia <- read_excel(sExcelFile, sheet = "Sheet1",  range = "N36:P58")
+
+dfLakePowellNatural$LeeFerryFlow <- dfLakePowellNatural$LakePowellFlow + dfParia %>% filter(`Water Year` == 2011) %>% select(`10-year flow`)
+
+mean(dfLakePowellNatural$LeeFerryFlow)
+
+print("ICS balance as fraction of Mead storage")
+print(sprintf("%.1f%%",nCurrICSTotal$Total/nCurrMeadStorage*100))
+
+print("Percent of Upper Colorado River Basin of entire continential US")
+print(sprintf("%.1f%%",109800/3119884*100))
+
+
 palBlues <- brewer.pal(9, "Blues")
 
 #Plot #1. Stacked bar chart of account balance by state by year. Add individual state limits as secondary y axis
