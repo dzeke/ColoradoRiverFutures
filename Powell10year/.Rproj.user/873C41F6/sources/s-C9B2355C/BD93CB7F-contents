@@ -127,6 +127,10 @@ dfPowellHist$OneYearRelease <- rollapply(dfPowellHist$Total.Release..cfs.*nCFSto
 #Annual inflow
 dfPowellHist$OneYearInflow <- rollapply(dfPowellHist$Inflow....cfs.*nCFStoAFMon/1e6, 12,sum, fill=NA, align="right")
 
+#Annual evaporation
+dfPowellHist$OneYearEvap <- rollapply(dfPowellHist$Evaporation..af./1e6, 12,sum, fill=NA, align="right")
+
+
 #10-year total release
 dfPowellHist$TenYearRelease <- rollapply(dfPowellHist$Total.Release..cfs.*nCFStoAFMon/1e6, 12*10,sum, fill=NA, align="right")
 #75 and 82.5 MAF ten-year targets
@@ -245,6 +249,20 @@ ggplot(dfPowellHistAnnual, aes(DateAsValue)) +
         legend.key = element_blank())
 
 ggsave("PowellInflow.png", width=9, height = 6.5, units="in")
+
+#Compare Powell USBR data evaporation to from 
+
+ggplot(dfPowellHistAnnual, aes(DateAsValue)) +
+  geom_bar(aes(y=OneYearEvap, fill = "Powell (USBR data)"), stat="identity") +
+ # geom_line(aes(y=OneYearRelease, group = 1, color="Release"), size=2) +
+  scale_color_manual(" ", values = c("Powell (USBR data)" = "grey50")) +
+  scale_fill_manual("", values="grey50") +
+  labs(x="", y="Evaporation\n(million acre-feet per year)") +  
+  
+  theme(text = element_text(size=20), legend.title=element_blank(), legend.text=element_text(size=18),
+        legend.key = element_blank())
+
+ggsave("PowellEvap.png", width=9, height = 6.5, units="in")
 
   
 #Histogram -- frequency of annual inflow volumes
