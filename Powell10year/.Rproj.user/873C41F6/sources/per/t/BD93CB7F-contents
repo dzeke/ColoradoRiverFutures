@@ -131,6 +131,50 @@ dfPowellHist$OneYearInflow <- rollapply(dfPowellHist$Inflow....cfs.*nCFStoAFMon/
 dfPowellHist$OneYearEvap <- rollapply(dfPowellHist$Evaporation..af./1e6, 12,sum, fill=NA, align="right")
 
 
+#Calculate evporation by rates and area
+# New function interp2 to return NAs for values outside interpolation range (from https://stackoverflow.com/questions/47295879/using-interp1-in-r)
+interp2 <- function(x, y, xi = x, ...) {
+  yi <- rep(NA, length(xi));
+  sel <- which(xi >= range(x)[1] & xi <= range(x)[2]);
+  yi[sel] <- interp1(x = x, y = y, xi = xi[sel], ...);
+  return(yi);
+}
+
+###This reservoir data comes from CRSS. It was exported to Excel.
+
+# Read elevation-storage data in from Excel
+sExcelFile <- 'MeadDroughtContingencyPlan.xlsx'
+dfPowellElevStor <- read_excel(sExcelFile, sheet = 'Powell-Elevation-Area',  range = "A4:D689")
+
+#Evaporation rates from CRSS
+# Evaporation Rates from Schmidt et al (2016) Fill Mead First, p. 29, Table 2 - https://qcnr.usu.edu/wats/colorado_river_studies/files/documents/Fill_Mead_First_Analysis.pdf
+dfEvapRates <- data.frame(Reservoir = c("Mead","Mead","Powell"),"Rate ft per year" = c(5.98,6.0, 5.73), Source = c("CRSS","FEIS-2008","Reclamation"), MinRate = c(NA,5.5,4.9), MaxRate = c(NA,6.4, 6.5))
+
+dfEvapRatesMonth <- data.frame(Reservoir = c(rep("Powell",12),rep("Mead",12)),
+                               Month = c(seq(1,12,by=1),seq(1,12,by=1)),
+                               EvapFeet = c(0.24, 0.19,0.29,0.38,0.5,0.63,0.7,0.77,0.69,0.52,0.41,0.36,
+                                            0.3,0.28,0.29,0.4,0.53,0.63,0.6,0.67,0.64,0.64,0.55,0.45))
+
+
+#Calculate evaporated volume for Powell
+# Max evaporation is product of annual evaporation rate and area (assumes water always stays at same level through year, there is inflow!
+EvapRatesToUsePowell = as.numeric(dfEvapRates %>% filter(Reservoir %in% c("Powell"), Source %in% c("Reclamation")) %>% select(Rate.ft.per.year))
+
+#Estimate the annual evap volume from Oct 1 area and annual rate
+dfPowellHist$EvaporationAnnual <- interp2(xi = dfPowellHist$Elevation..feet.,x=dfPowellElevStor$`Elevation (ft)`,y=dfPowellElevStor$`Area (acres)`, method="linear")*EvapRatesToUsePowell/1e6
+
+dfPowellMonthRates <- dfEvapRatesMonth %>% filter(Reservoir == "Powell")
+
+#Estimate the annual evap volume from monthly area and monthly rates
+dfPowellHist$EvaporationMonthly <- interp2(xi = dfPowellHist$Elevation..feet.,x=dfPowellElevStor$`Elevation (ft)`,y=dfPowellElevStor$`Area (acres)`, method="linear")*  #Area
+  interp2(xi = month(as.Date(dfPowellHist$Date,"%d-%b-%y")),x=dfPowellMonthRates$Month,y=dfPowellMonthRates$EvapFeet, method="linear")/1e6
+
+#Annual evaporation
+dfPowellHist$ByMonthEvap <- rollapply(dfPowellHist$EvaporationMonthly, 12,sum, fill=NA, align="right")
+
+
+
+
 #10-year total release
 dfPowellHist$TenYearRelease <- rollapply(dfPowellHist$Total.Release..cfs.*nCFStoAFMon/1e6, 12*10,sum, fill=NA, align="right")
 #75 and 82.5 MAF ten-year targets
@@ -250,12 +294,13 @@ ggplot(dfPowellHistAnnual, aes(DateAsValue)) +
 
 ggsave("PowellInflow.png", width=9, height = 6.5, units="in")
 
-#Compare Powell USBR data evaporation to from 
+#Compare Powell USBR data evaporation to values from rate
 
 ggplot(dfPowellHistAnnual, aes(DateAsValue)) +
-  geom_bar(aes(y=OneYearEvap, fill = "Powell (USBR data)"), stat="identity") +
- # geom_line(aes(y=OneYearRelease, group = 1, color="Release"), size=2) +
-  scale_color_manual(" ", values = c("Powell (USBR data)" = "grey50")) +
+  geom_bar(aes(y=OneYearEvap, fill = "Powell - USBR data"), stat="identity") +
+  geom_line(aes(y=EvaporationAnnual, group = 1, color="Powell - Rate Annual"), size=2) +
+  geom_line(aes(y=ByMonthEvap, group = 1, color="Powell - Rate Monthly"), size=2) +
+  scale_color_manual(" ", values = c("Powell - USBR data" = "grey50", "Powell - Rate Annual" = "blue", "Powell - Rate Monthly" = "red")) +
   scale_fill_manual("", values="grey50") +
   labs(x="", y="Evaporation\n(million acre-feet per year)") +  
   
