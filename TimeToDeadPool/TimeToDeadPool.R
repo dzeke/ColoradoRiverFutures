@@ -254,8 +254,9 @@ dfReservedFlood$month_num <- month(as.POSIXlt(dfReservedFlood$Month, format="%Y-
 # Read in Paria, Little Colorado, and Virgin River Flows from CRSS DMI to convert Inflow to Mead to Natural Flow at Lee Ferry
 sExcelFileGrandCanyonFlow <- 'HistoricalNaturalFlow.xlsx'
 #dfGCFlows <- read_excel(sExcelFileGrandCanyonFlow, sheet = 'Total Natural Flow',  range = "V1:Y1324")
-dfGCFlows <- read_excel(sExcelFileGrandCanyonFlow, sheet = 'Total Natural Flow',  range = "V1:Z1324")
+dfGCFlows <- read_excel(sExcelFileGrandCanyonFlow, sheet = 'Total Natural Flow',  range = "U1:Z1324")
 dfGCDates <- read_excel(sExcelFileGrandCanyonFlow, sheet = 'Total Natural Flow',  range = "A1:A1324")
+
 
 #Merge and combine into one Data frame
 dfGCFlows$Date <- dfGCDates$`Natural Flow And Salt Calc model Object.Slot`

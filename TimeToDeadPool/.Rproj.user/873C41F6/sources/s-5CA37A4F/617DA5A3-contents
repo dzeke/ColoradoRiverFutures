@@ -254,8 +254,9 @@ dfReservedFlood$month_num <- month(as.POSIXlt(dfReservedFlood$Month, format="%Y-
 # Read in Paria, Little Colorado, and Virgin River Flows from CRSS DMI to convert Inflow to Mead to Natural Flow at Lee Ferry
 sExcelFileGrandCanyonFlow <- 'HistoricalNaturalFlow.xlsx'
 #dfGCFlows <- read_excel(sExcelFileGrandCanyonFlow, sheet = 'Total Natural Flow',  range = "V1:Y1324")
-dfGCFlows <- read_excel(sExcelFileGrandCanyonFlow, sheet = 'Total Natural Flow',  range = "V1:Z1324")
+dfGCFlows <- read_excel(sExcelFileGrandCanyonFlow, sheet = 'Total Natural Flow',  range = "U1:Z1324")
 dfGCDates <- read_excel(sExcelFileGrandCanyonFlow, sheet = 'Total Natural Flow',  range = "A1:A1324")
+
 
 #Merge and combine into one Data frame
 dfGCFlows$Date <- dfGCDates$`Natural Flow And Salt Calc model Object.Slot`
@@ -268,15 +269,22 @@ dfGCFlows$Total <- dfGCFlows$`CoRivPowellToVirgin:PariaGains.LocalInflow` + dfGC
   dfGCFlows$VirginRiver.Inflow + dfGCFlows$`CoRivVirginToMead:GainsAboveHoover.LocalInflow` - dfGCFlows$`CoRivPowellToVirgin:GainsAboveGC.LocalInflow`
 
 #Convert to Water Year and sum by water year
+dfGCFlowsByYear <- aggregate(dfGCFlows$Total, by=list(Category=dfGCFlows$WaterYear), FUN=sum)
+dfLeeFerryByYear <- aggregate(dfGCFlows$`HistoricalNaturalFlow.AboveLeesFerry`, by=list(Category=dfGCFlows$WaterYear), FUN=sum)
+
+#Change the Names
+colnames(dfGCFlowsByYear) <- c("WaterYear","GCFlow")
+colnames(dfLeeFerryByYear) <- c("WaterYear", "LeeFerryFlow")
+dfGCFlowsByYear$LeeFerryFlow <- dfLeeFerryByYear$LeeFerryFlow
+
 dfGCFlows$Year <- year(dfGCFlows$Date)
 dfGCFlows$Month <- month(as.Date(dfGCFlows$Date,"%Y-%m-%d"))
 dfGCFlows$WaterYear <- ifelse(dfGCFlows$Month >= 10,dfGCFlows$Year,dfGCFlows$Year - 1)
-dfGCFlowsByYear <- aggregate(dfGCFlows$Total, by=list(Category=dfGCFlows$WaterYear), FUN=sum)
 
 #### Figure 0 - Plot Grand Canyon Tributary Inflows as a box-and-whiskers
 #Plot as a box-and whiskers
 
-ggplot(dfGCFlowsByYear, aes(y=x/1e6)) +
+ggplot(dfGCFlowsByYear, aes(y=GCFlow/1e6)) +
     geom_boxplot() +
     theme_bw() +
     
@@ -291,7 +299,26 @@ ggsave("Fig0-GrandCanyonTribFlows.jpg",width = 6,
        dpi = 300)
 
 #Calculate the median value
-vMedGCFlow <- median(dfGCFlowsByYear$x)
+vMedGCFlow <- median(dfGCFlowsByYear$GCFlow)
+
+
+# Show the correlation between Grand Canyon Flow and Lee Ferry Flow
+ggplot(dfGCFlowsByYear, aes(x= LeeFerryFlow/1e6, y=GCFlow/1e6)) +
+  geom_point() +
+  theme_bw() +
+  
+  labs(x="Lee Ferry Natural Flow\n(MAF per year)", y="Grand Canyon Tributary Inflows\n(MAF per year)") +
+  #theme(text = element_text(size=20), legend.title=element_blank(), legend.text=element_text(size=18),
+  #      legend.position = c(0.8,0.7))
+  theme(text = element_text(size=20), 
+        legend.position = "none")
+
+cor(dfGCFlowsByYear)
+
+## Export the data so can run sequence average analysis by Salehabadi and Tarboton (2020)
+write.csv(x=dfGCFlowsByYear, file = "GrandCanyonFlows.csv", row.names = FALSE)
+
+
 
 # Read in the ISG and DCP cutbacks from Excel
 dfCutbacksElev <- read_excel(sExcelFile, sheet = "Data",  range = "H21:H41") #Elevations

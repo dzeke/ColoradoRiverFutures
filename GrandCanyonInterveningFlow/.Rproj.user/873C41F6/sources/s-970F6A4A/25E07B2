@@ -1,0 +1,29 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1620683759222.000,
+    "dirty" : false,
+    "encoding" : "",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "25E07B2",
+    "lastKnownWriteTime" : 7142820508308894319,
+    "last_content_update" : 1620683759222,
+    "path" : null,
+    "project_path" : null,
+    "properties" : {
+        "cacheKey" : "5CE2FB03",
+        "caption" : "dfGCFlows",
+        "contentUrl" : "grid_resource/gridviewer.html?env=&obj=dfGCFlows&cache_key=5CE2FB03",
+        "displayedObservations" : 1323,
+        "environment" : "",
+        "object" : "dfGCFlows",
+        "preview" : 0,
+        "totalObservations" : 1323,
+        "variables" : 11
+    },
+    "relative_order" : 4,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_dataframe"
+}
