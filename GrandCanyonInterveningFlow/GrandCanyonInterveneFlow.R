@@ -1,10 +1,13 @@
 #####
-#     Grand Canyon Intervening flows
+#     An examination of Grand Canyon intervening flows using USGS gaged and USBR Natural flow data
 #     
-#     Grand Canyon intervening flows are sum of Paria, Little Colorado River, Virgin, and Powell to Virgin natural flows
+#     Calculate Grand Canyon intervening flow as:
+#        From USBR Natural Flows: Grand Canyon intervening flows are sum of Paria, Little Colorado River, Virgin, and Powell to Mead natural flows
 #     in the USBR Natural Flow database
 #
-#     Produces 3 plots:
+#        From USGS gages: (Colorado River near Peach Springs [9404200] - Colorado River at Lees Feery [9382000] + Virign River at Littlefield [9415000] )
+#
+#     Produces 3 plots for each data set:
 #
 #       1. Box and whiskers of flow
 #       2. Correlation with Lee Ferry Natural Flow
@@ -107,14 +110,45 @@ dfLeeFerryByYear <- aggregate(dfGCFlows$`HistoricalNaturalFlow.AboveLeesFerry`, 
 
 #Change the Names
 colnames(dfGCFlowsByYear) <- c("WaterYear","GCFlow")
-colnames(dfLeeFerryByYear) <- c("WaterYear", "LeeFerryFlow")
-dfGCFlowsByYear$LeeFerryFlow <- dfLeeFerryByYear$LeeFerryFlow
+colnames(dfLeeFerryByYear) <- c("WaterYear", "LeeFerryNaturalFlow")
+dfGCFlowsByYear$LeeFerryNaturalFlow <- dfLeeFerryByYear$LeeFerryNaturalFlow
+
+
+### Read in the USGS gaged data
+
+sExcelFileUSGSFlow <- 'USGSInterveningFlowData.xlsx'
+dfGCFlowsUSGS <- read_excel(sExcelFileUSGSFlow, sheet = 'Combined',  range = "A1:D32")
+cColNames <- colnames(dfGCFlowsUSGS)
+cColNames[1] <- "WaterYear"
+cColNames[2] <- "LeeFerryFlow"
+colnames(dfGCFlowsUSGS) <- cColNames
+
+#Calculate the total
+dfGCFlowsUSGS$GCFlow <- dfGCFlowsUSGS$`Colorado River near Peach Springs` - dfGCFlowsUSGS$LeeFerryFlow + dfGCFlowsUSGS$`Virgin River at Littlefield`
+
+#Natural flow
+dfGCFDataToUse <- dfGCFlowsByYear
+dfGCFDataToUse$GCFlow <- dfGCFDataToUse$GCFlow/1e6
+dfGCFDataToUse$LeeFerryNaturalFlow <- dfGCFDataToUse$LeeFerryNaturalFlow/1e6
+dfGCFDataToUse$Source <- 'Natural Flow'
+
+#USGS data
+#Pull in the correct columns
+dfGCFDataToUse2 <- as.data.frame(dfGCFlowsUSGS[,c(1,5)])
+#Assign the Lee Ferry Natural Flow by year
+dfGCFDataToUse2 <- left_join(dfGCFDataToUse2, dfGCFDataToUse[,c("WaterYear","LeeFerryNaturalFlow")], by=c("WaterYear" = "WaterYear"))
+#Sort smallest year to largest year
+dfGCFDataToUse2 <- dfGCFDataToUse2[order(dfGCFDataToUse2$`WaterYear`),]
+dfGCFDataToUse2$Source <- 'USGS'
+
+#Bind the two data sets together
+dfGCFDataToUse <- rbind(dfGCFDataToUse, dfGCFDataToUse2)
 
 
 #### Figure 1 - Plot Grand Canyon Tributary Inflows as a box-and-whiskers
 #Plot as a box-and whiskers
 
-ggplot(dfGCFlowsByYear, aes(y=GCFlow/1e6)) +
+ggplot(dfGCFDataToUse, aes(x=Source , y=GCFlow)) +
   geom_boxplot() +
   theme_bw() +
   
@@ -122,31 +156,42 @@ ggplot(dfGCFlowsByYear, aes(y=GCFlow/1e6)) +
   #theme(text = element_text(size=20), legend.title=element_blank(), legend.text=element_text(size=18),
   #      legend.position = c(0.8,0.7))
   theme(text = element_text(size=20), 
-        legend.position = "none",axis.text.x = element_blank(), axis.ticks = element_blank())
+        legend.position = "none")
 
 
 #Calculate the median value
-vMedGCFlow <- median(dfGCFlowsByYear$GCFlow)
+vMedGCFlow <- median(dfGCFDataToUse$GCFlow)
 
 
 #### Figure 2. Show the correlation between Grand Canyon Flow and Lee Ferry Flow
 #
-ggplot(dfGCFlowsByYear, aes(x= LeeFerryFlow/1e6, y=GCFlow/1e6)) +
-  geom_point() +
-  theme_bw() +
+ggplot() +
+  #Points after 1990 in Blue and Red
+  geom_point(data = dfGCFDataToUse %>% filter(WaterYear >= 1990), aes(x= LeeFerryNaturalFlow, y=GCFlow, color=Source, shape=Source), size=6) +
   
+  geom_point(data = dfGCFDataToUse %>% filter(WaterYear < 1990), aes(x= LeeFerryNaturalFlow, y=GCFlow, color="Natural Flow pre 1990", shape="Natural Flow pre 1990"), size=6) +
+
+  scale_shape_manual(values=c(17,16,16), breaks = c("USGS","Natural Flow","Natural Flow pre 1990"), labels  = c("USGS (after 1990)","Natural Flow (after 1990)","Natural Flow (before 1990)")) +
+  
+  scale_color_manual(values=c("Blue","Red","Pink"), breaks = c("USGS","Natural Flow","Natural Flow pre 1990"), labels  = c("USGS (after 1990)","Natural Flow (after 1990)","Natural Flow (before 1990)")) +
+  
+  #Make one combined legend
+  guides(color = guide_legend("Dataset"), shape = guide_legend("Dataset")) +
+  
+  #facet_wrap( ~ Source) +
   labs(x="Lee Ferry Natural Flow\n(MAF per year)", y="Grand Canyon Intervening Flows\n(MAF per year)") +
   #theme(text = element_text(size=20), legend.title=element_blank(), legend.text=element_text(size=18),
   #      legend.position = c(0.8,0.7))
-  theme(text = element_text(size=20), 
-        legend.position = "none")
+  
+  theme_bw() +  
+  theme(text = element_text(size=20))
 
 ## Show the correlation matrix
-mCorr <- cor(dfGCFlowsByYear)
+mCorr <- cor(dfGCFDataToUse)
 print(paste("Correlation = ",round(mCorr[2,3],2)))
 
 
-#### Figure 3. Show the sequence average plot using Salehabadi code.
+#### Figures 3 and 4. Show the sequence average plot using Salehabadi code for Natural Flow data set and USGS data
 
 ############################################################################################################
 ###### Sequence Average Plot (Dotty Plot)                                                             ######
@@ -177,154 +222,167 @@ n.lowest <- function(x,n,value=TRUE){
 # Natural Flow Plot
 ## Input Files ------------------------------------------------------------------------------
 #filename1 <- "R_InputData.xlsx"
-#sheetname1 <-  "AnnualWYTotalNaturalFlow_LF2018"    ## Natural flow: "AnnualWYTotalNaturalFlow_LF2018"   ## Tree ring: "TR_Meko_2017-SK"  
+#sheetname1 <-  "AnnualWYTotalNaturalFlow_LF2018"    ## Natural flow: "AnnualWYTotalNaturalFlow_LF2018"   ## Tree ring: "TR_Meko_2017-SK"
 
-## Factor to change the current unit --------------------------------------------------------
-unit_factor <- 10^(-6)   ## ac-ft to MAF
+#A data frame to loop over
+dfDataTypes <- data.frame(Source = c("USGS","Natural Flow"), minY = c(0.5,0.0), maxY = c(2,2))
 
-## Maximum length of sequence (sequences will be from 1 to seq_yr) --------------------------
-seq_yr <- 15 ## 25
-
-## desired period ---------------------------------------------------------------------------
-yr1 <- 1905   ## NF:1906   TR:1416       
-yr2 <- 2016   ## NF:2018   TR:2015    
+for(iType in (1:nrow(dfDataTypes))) {
   
-## A year to devide the period into two period.  --------------------------------------------
-post_year <- 2000   ## post-year will be distinguished in plot
+   # iType <- 2
 
-
-### Pull the data into the data data frame for plotting
-data <- dfGCFlowsByYear
-
-yr1 <- min(data$WaterYear)
-yr2 <- max(data$WaterYear)
-
-
-#data <- read.xlsx(filename1, sheet=sheetname1, colNames=TRUE)
-#data <- read.csv(file = "GrandCanyonFlows.csv", header = TRUE, sep =",", strip.white = TRUE)
-years <- yr1:yr2
-n <- length(years)
-
-
-#### Sequence Average plot ###########################################################################################     
-####   - creat the Sequence-Average plot                                                 
-####   - add the long term average of the flow over the full and post-yr periods as horizontal lines
-####
-#### >> Check Legend if needed  
-
-## take the flow data ------------
-flow <- data[ which(data[,1]==yr1):which(data[,1]==yr2) ,(2)]
-
-## define empty matrixes -------------
-Mean<- matrix(rep(NA), nrow=n , ncol=seq_yr)
-lowest <- matrix(rep(NA), nrow=n , ncol=seq_yr)
-lowest_index <- matrix(rep(NA), nrow=n , ncol=seq_yr)
-lowest_year <- matrix(rep(NA), nrow=n , ncol=seq_yr)
-
-## calculate the averages over the sequences---------------
-## Loop: over the defined sequences
-for (m_yr in 1:seq_yr){  
-  
-  mean_m_yr <- rep(NA)
-  sort <- rep(NA)
-  
-  for (m in 1:(n-(m_yr-1))){
-    mean_m_yr[m] <- mean( flow[ m : (m+(m_yr-1)) ] )
-    Mean[m ,m_yr] <- mean_m_yr[m]
-  }
-  
-  for (m in 1:(n-(m_yr-1))){
-    lowest[m ,m_yr] <- n.lowest( mean_m_yr,m,value=TRUE)
-    lowest_index[m ,m_yr] <- n.lowest(mean_m_yr,m,value=FALSE)   
-    lowest_year[m ,m_yr] <- years[lowest_index[m ,m_yr]]
-  }
-  
-}
-
-
-## change unit to MAF ----------------------
-lowest_MAF <- lowest*unit_factor  
-
-###### Plot SeqAve (dotty plots) ==========================================================================
-
-## the final dataframe that you want its dotty plot will be SeqAve
-SeqAve <- lowest_MAF
-
-## will be used to plot with a better scale:
-min <- -0.5 #floor(min(SeqAve, na.rm=TRUE))
-max <- ceiling(max(SeqAve, na.rm=TRUE))
-
-##### plot -----------------------------------------------------------
-x <- c(1:seq_yr)
-par(mar=c(5, 4, 3, 2) + 0.2 , mgp=c(2.5, 1, 0) )
-
-## 1- For natural flow run this:
-plot(x, SeqAve[1,], col="white", ylim=c(min, max) , xlim=c(1, seq_yr+1), xaxt="n" ,yaxt="n",
-     pch=16, cex=0.6, xlab="Length of sequence (year)", ylab="Mean flow (maf)", cex.lab=1.3, 
-     main=paste0("Grand Canyon Tributary Flow (Powell to Mead),  Period: " ,yr1,"-",yr2) )  ## , cex.main=1.3
-
-### axis of the plot -------
-axis(1, at=seq(1,seq_yr,1), cex.axis=1)
-axis(2, at=seq((min-2),max,0.5), cex.axis=1, las=1)  ## las=1 to rotate the y lables
-
-
-### plot dots and seperate them to blue and red ones ---------
-
-## full period
-for (j in 1:seq_yr){  
-  for (i in 1:(n-(j-1))){  #1:n
-    points(j, SeqAve[i,j], col= "lightskyblue2" ,pch=1, cex=0.5, lwd=1)
-  }
-}
-
-## specify post-yr period
-for (j in 1:seq_yr){  
-  for (i in 1:(n-(j-1))){  #1:n
+    ### Pull the data into the data data frame for plotting
+    data <- dfGCFDataToUse %>% filter(Source == dfDataTypes$Source[iType])
     
-    if ( lowest_year[i,j]>=post_year) {
-      points(j, SeqAve[i,j], col= "black" ,bg="red" ,pch=21, cex=0.7, lwd=0.2)
+    ## Factor to change the current unit --------------------------------------------------------
+    unit_factor <- 1 #10^(-6)   ## ac-ft to MAF
+    
+    ## Maximum length of sequence (sequences will be from 1 to seq_yr) --------------------------
+    seq_yr <- 15 ## 25
+    
+    ## desired period ---------------------------------------------------------------------------
+    #yr1 <- 1990   ## NF:1906   TR:1416       
+    #yr2 <- 2016   ## NF:2018   TR:2015    
+      
+    ## A year to devide the period into two period.  --------------------------------------------
+    post_year <- 2000   ## post-year will be distinguished in plot
+    
+    #desired period is the min and max water years
+    yr1 <- min(data$WaterYear)
+    yr2 <- max(data$WaterYear)
+    
+    
+    #data <- read.xlsx(filename1, sheet=sheetname1, colNames=TRUE)
+    #data <- read.csv(file = "GrandCanyonFlows.csv", header = TRUE, sep =",", strip.white = TRUE)
+    years <- yr1:yr2
+    n <- length(years)
+    
+    
+    #### Sequence Average plot ###########################################################################################     
+    ####   - creat the Sequence-Average plot                                                 
+    ####   - add the long term average of the flow over the full and post-yr periods as horizontal lines
+    ####
+    #### >> Check Legend if needed  
+    
+    ## take the flow data ------------
+    flow <- data[ which(data[,1]==yr1):which(data[,1]==yr2) ,(2)]
+    
+    ## define empty matrixes -------------
+    Mean<- matrix(rep(NA), nrow=n , ncol=seq_yr)
+    lowest <- matrix(rep(NA), nrow=n , ncol=seq_yr)
+    lowest_index <- matrix(rep(NA), nrow=n , ncol=seq_yr)
+    lowest_year <- matrix(rep(NA), nrow=n , ncol=seq_yr)
+    
+    ## calculate the averages over the sequences---------------
+    ## Loop: over the defined sequences
+    for (m_yr in 1:seq_yr){  
+      
+      print(m_yr)
+      
+      mean_m_yr <- rep(NA)
+      sort <- rep(NA)
+      
+      for (m in 1:(n-(m_yr-1))){
+        mean_m_yr[m] <- mean( flow[ m : (m+(m_yr-1)) ] )
+        Mean[m ,m_yr] <- mean_m_yr[m]
+        
+        print(paste("m: ",m))
+      }
+      
+      for (m in 1:(n-(m_yr-1))){
+        lowest[m ,m_yr] <- n.lowest( mean_m_yr,m,value=TRUE)
+        lowest_index[m ,m_yr] <- n.lowest(mean_m_yr,m,value=FALSE)   
+        lowest_year[m ,m_yr] <- years[lowest_index[m ,m_yr]]
+      }
+      
     }
-  }
+    
+    
+    ## change unit to MAF ----------------------
+    lowest_MAF <- lowest*unit_factor  
+    
+    ###### Plot SeqAve (dotty plots) ==========================================================================
+    
+    ## the final dataframe that you want its dotty plot will be SeqAve
+    SeqAve <- lowest_MAF
+    
+    ## will be used to plot with a better scale:
+    min <- 0.5 #floor(min(SeqAve, na.rm=TRUE))
+    max <- ceiling(max(SeqAve, na.rm=TRUE))
+    
+    min <- dfDataTypes$minY[iType]
+    #max <- dfDataTypes$maxY[iType]
+    
+    ##### plot -----------------------------------------------------------
+    x <- c(1:seq_yr)
+    par(mar=c(5, 4, 3, 2) + 0.2 , mgp=c(2.5, 1, 0) )
+    
+    ## 1- For natural flow run this:
+    plot(x, SeqAve[1,], col="white", ylim=c(min, max) , xlim=c(1, seq_yr+1), xaxt="n" ,yaxt="n",
+         pch=16, cex=0.6, xlab="Length of sequence (year)", ylab="Mean flow (maf)", cex.lab=1.3, 
+         main=paste0("Grand Canyon Tributary Flow (Powell to Mead),  Period: " ,yr1,"-",yr2,paste0("\n",dfDataTypes$Source[iType]," Data")) )  ## , cex.main=1.3
+    
+    ### axis of the plot -------
+    axis(1, at=seq(1,seq_yr,1), cex.axis=1)
+    axis(2, at=seq((min-2),max,0.25), cex.axis=1, las=1)  ## las=1 to rotate the y lables
+    
+    
+    ### plot dots and seperate them to blue and red ones ---------
+    
+    ## full period
+    for (j in 1:seq_yr){  
+      for (i in 1:(n-(j-1))){  #1:n
+        points(j, SeqAve[i,j], col= "lightskyblue2" ,pch=1, cex=0.5, lwd=1)
+      }
+    }
+    
+    ## specify post-yr period
+    for (j in 1:seq_yr){  
+      for (i in 1:(n-(j-1))){  #1:n
+        
+        if ( lowest_year[i,j]>=post_year) {
+          points(j, SeqAve[i,j], col= "black" ,bg="red" ,pch=21, cex=0.7, lwd=0.2)
+        }
+      }
+    }
+    
+    
+    ### add a line representing the long-term average of flow during the full period -----------
+    ave_all <- mean(flow)* unit_factor
+    abline (ave_all, 0, col="steelblue2", lwd=1.2)
+    
+    ### add a line representing the long-term average of flow during the post-yr period 
+    while(post_year<=yr2){
+      ave_post <- mean(flow[(which(years==post_year) : which(years==yr2))] ) * unit_factor
+      abline (ave_post, 0, col="red", lwd=1.2)
+      break}
+    
+    
+    ### lable the two lines of long-term average -----------
+    if(post_year<=yr2){
+      if(ave_all>ave_post){
+        text((seq_yr+0.2),(ave_all+0.3), labels= paste(round(ave_all, digits=2)), pos = 4, cex=1, col="dodgerblue3", xpd=TRUE)  ##, font=2
+        text((seq_yr+0.2),(ave_post-0.4), labels= paste(round(ave_post, digits=2)), pos = 4, cex=1, col="red", xpd=TRUE)
+      }
+      if(ave_all<ave_post){
+        text((seq_yr+0.2),(ave_all-0.4), labels= paste(round(ave_all, digits=2)), pos = 4, cex=1, col="dodgerblue3", xpd=TRUE)  ##, font=2
+        text((seq_yr+0.2),(ave_post+0.4), labels= paste(round(ave_post, digits=2)), pos = 4, cex=1, col="red", xpd=TRUE)
+      }
+    } else {
+      text((seq_yr+0.2),(ave_all+0.3), labels= paste(round(ave_all, digits=2)), pos = 4, cex=1, col="dodgerblue3", xpd=TRUE)
+    }
+    
+    
+    ### lable the first and second lowest SeqAve ----------
+    text(SeqAve[1,]~x, labels=lowest_year[1,], pos = 1, cex=0.6, col="black", srt=0) ## the lowest     (vertical text: srt=90)
+    text(SeqAve[2,]~x, labels=lowest_year[2,], pos = 2, cex=0.5, col="gray47", srt=0)  ## the second lowest
+    
+    
+    ### 1- Legend for natural flow 1906-2018 -----------
+    legend("topright", legend=c(paste0("Full Period (",yr1,"-",yr2,")"),paste0("Post-",post_year,"(",post_year,"-",yr2,")"), paste0("Long term mean (",yr1,"-",yr2,")"),  paste0("Long term mean (",post_year,"-", yr2,")")),
+           col=c("lightskyblue3","black","steelblue2","red"), pt.bg=c(NA,"red", NA,NA) , pch=c(1,21, NA, NA), pt.cex=c(0.6, 0.8),
+           lwd=1,  lty=c(0,0,1,1), inset=c(0.05, 0.03), bty = "n")
 }
-
-
-### add a line representing the long-term average of flow during the full period -----------
-ave_all <- mean(flow)* unit_factor
-abline (ave_all, 0, col="steelblue2", lwd=1.2)
-
-### add a line representing the long-term average of flow during the post-yr period 
-while(post_year<=yr2){
-  ave_post <- mean(flow[(which(years==post_year) : which(years==yr2))] ) * unit_factor
-  abline (ave_post, 0, col="red", lwd=1.2)
-  break}
-
-
-### lable the two lines of long-term average -----------
-if(post_year<=yr2){
-  if(ave_all>ave_post){
-    text((seq_yr+0.2),(ave_all+0.3), labels= paste(round(ave_all, digits=2)), pos = 4, cex=1, col="dodgerblue3", xpd=TRUE)  ##, font=2
-    text((seq_yr+0.2),(ave_post-0.4), labels= paste(round(ave_post, digits=2)), pos = 4, cex=1, col="red", xpd=TRUE)
-  }
-  if(ave_all<ave_post){
-    text((seq_yr+0.2),(ave_all-0.4), labels= paste(round(ave_all, digits=2)), pos = 4, cex=1, col="dodgerblue3", xpd=TRUE)  ##, font=2
-    text((seq_yr+0.2),(ave_post+0.4), labels= paste(round(ave_post, digits=2)), pos = 4, cex=1, col="red", xpd=TRUE)
-  }
-} else {
-  text((seq_yr+0.2),(ave_all+0.3), labels= paste(round(ave_all, digits=2)), pos = 4, cex=1, col="dodgerblue3", xpd=TRUE)
-}
-
-
-### lable the first and second lowest SeqAve ----------
-text(SeqAve[1,]~x, labels=lowest_year[1,], pos = 1, cex=0.6, col="black", srt=0) ## the lowest     (vertical text: srt=90)
-text(SeqAve[2,]~x, labels=lowest_year[2,], pos = 2, cex=0.5, col="gray47", srt=0)  ## the second lowest
-
-
-### 1- Legend for natural flow 1906-2018 -----------
-legend("topright", legend=c("Full Period (1906-2018)","Post-2000 (2000-2018)", "Long term mean (1906-2018)",  "Long term mean (2000-2018)"),
-       col=c("lightskyblue3","black","steelblue2","red"), pt.bg=c(NA,"red", NA,NA) , pch=c(1,21, NA, NA), pt.cex=c(0.6, 0.8),
-       lwd=1,  lty=c(0,0,1,1), inset=c(0.05, 0.03), bty = "n")
-
-
 
 
   
