@@ -260,6 +260,12 @@ dfGCDates <- read_excel(sExcelFileGrandCanyonFlow, sheet = 'Total Natural Flow',
 
 #Merge and combine into one Data frame
 dfGCFlows$Date <- dfGCDates$`Natural Flow And Salt Calc model Object.Slot`
+
+dfGCFlows$Year <- year(dfGCFlows$Date)
+dfGCFlows$Month <- month(as.Date(dfGCFlows$Date,"%Y-%m-%d"))
+dfGCFlows$WaterYear <- ifelse(dfGCFlows$Month >= 10,dfGCFlows$Year,dfGCFlows$Year - 1)
+
+
 #Just tribs
 #dfGCFlows$Total <- dfGCFlows$`CoRivPowellToVirgin:PariaGains.LocalInflow` + dfGCFlows$`CoRivPowellToVirgin:LittleCoR.LocalInflow` + 
 #                          dfGCFlows$VirginRiver.Inflow
@@ -269,30 +275,52 @@ dfGCFlows$Total <- dfGCFlows$`CoRivPowellToVirgin:PariaGains.LocalInflow` + dfGC
   dfGCFlows$VirginRiver.Inflow + dfGCFlows$`CoRivVirginToMead:GainsAboveHoover.LocalInflow` - dfGCFlows$`CoRivPowellToVirgin:GainsAboveGC.LocalInflow`
 
 #Convert to Water Year and sum by water year
-dfGCFlows$Year <- year(dfGCFlows$Date)
-dfGCFlows$Month <- month(as.Date(dfGCFlows$Date,"%Y-%m-%d"))
-dfGCFlows$WaterYear <- ifelse(dfGCFlows$Month >= 10,dfGCFlows$Year,dfGCFlows$Year - 1)
 dfGCFlowsByYear <- aggregate(dfGCFlows$Total, by=list(Category=dfGCFlows$WaterYear), FUN=sum)
+dfLeeFerryByYear <- aggregate(dfGCFlows$`HistoricalNaturalFlow.AboveLeesFerry`, by=list(Category=dfGCFlows$WaterYear), FUN=sum)
 
-#### Figure 0 - Plot Grand Canyon Tributary Inflows as a box-and-whiskers
-#Plot as a box-and whiskers
+#Change the Names
+colnames(dfGCFlowsByYear) <- c("WaterYear","GCFlow")
+colnames(dfLeeFerryByYear) <- c("WaterYear", "LeeFerryFlow")
+dfGCFlowsByYear$LeeFerryFlow <- dfLeeFerryByYear$LeeFerryFlow
 
-ggplot(dfGCFlowsByYear, aes(y=x/1e6)) +
-    geom_boxplot() +
-    theme_bw() +
-    
-    labs(x="", y="Grand Canyon Tributary Inflows\n(MAF per year)") +
-    #theme(text = element_text(size=20), legend.title=element_blank(), legend.text=element_text(size=18),
-    #      legend.position = c(0.8,0.7))
-    theme(text = element_text(size=20), 
-          legend.position = "none",axis.text.x = element_blank(), axis.ticks = element_blank())
-
-ggsave("Fig0-GrandCanyonTribFlows.jpg",width = 6,
-       height = 6, units = "in",
-       dpi = 300)
+# #### Figure 0 - Plot Grand Canyon Tributary Inflows as a box-and-whiskers
+# #Plot as a box-and whiskers
+# 
+# ggplot(dfGCFlowsByYear, aes(y=GCFlow/1e6)) +
+#     geom_boxplot() +
+#     theme_bw() +
+#     
+#     labs(x="", y="Grand Canyon Tributary Inflows\n(MAF per year)") +
+#     #theme(text = element_text(size=20), legend.title=element_blank(), legend.text=element_text(size=18),
+#     #      legend.position = c(0.8,0.7))
+#     theme(text = element_text(size=20), 
+#           legend.position = "none",axis.text.x = element_blank(), axis.ticks = element_blank())
+# 
+# ggsave("Fig0-GrandCanyonTribFlows.jpg",width = 6,
+#        height = 6, units = "in",
+#        dpi = 300)
 
 #Calculate the median value
-vMedGCFlow <- median(dfGCFlowsByYear$x)
+vMedGCFlow <- median(dfGCFlowsByYear$GCFlow)
+
+
+# Show the correlation between Grand Canyon Flow and Lee Ferry Flow
+ggplot(dfGCFlowsByYear, aes(x= LeeFerryFlow/1e6, y=GCFlow/1e6)) +
+  geom_point() +
+  theme_bw() +
+  
+  labs(x="Lee Ferry Natural Flow\n(MAF per year)", y="Grand Canyon Tributary Inflows\n(MAF per year)") +
+  #theme(text = element_text(size=20), legend.title=element_blank(), legend.text=element_text(size=18),
+  #      legend.position = c(0.8,0.7))
+  theme(text = element_text(size=20), 
+        legend.position = "none")
+
+cor(dfGCFlowsByYear)
+
+## Export the data so can run sequence average analysis by Salehabadi and Tarboton (2020)
+write.csv(x=dfGCFlowsByYear, file = "GrandCanyonFlows.csv", row.names = FALSE)
+
+
 
 # Read in the ISG and DCP cutbacks from Excel
 dfCutbacksElev <- read_excel(sExcelFile, sheet = "Data",  range = "H21:H41") #Elevations
@@ -580,16 +608,17 @@ dfInflowSimulations <- data.frame(Storage=0, Year=0, index=0, Inflow=0, Release=
 #Mead Initial Storage on April 9, 2019
 sMeadApril2019 <- interp1(xi = 1089.74,y=dfMeadElevStor$`Live Storage (ac-ft)`,x=dfMeadElevStor$`Elevation (ft)`, method="linear")
 sMeadOct2019 <- interp1(xi = 1083.05,y=dfMeadElevStor$`Live Storage (ac-ft)`,x=dfMeadElevStor$`Elevation (ft)`, method="linear")
-sMeadStartStorage <- sMeadOct2019
+sMeadOct2020 <- 10.1*1e6
+sMeadStartStorage <- sMeadOct2020
 sMeadDeadPool <- interp1(xi = 900,y=dfMeadElevStor$`Live Storage (ac-ft)`,x=dfMeadElevStor$`Elevation (ft)`, method="linear")
 
 #Define start year
-startYear <- 2019
+startYear <- 2021
 #Define the maximum number of iterations. Use an even number so the inflow labels plot nicely
 maxIts <- 24
 
-#Loop over stead natural inflow values (stress tests)
-for (tInflow in seq(5,12, by=1)*1e6){
+#Loop over steady natural inflow values (stress tests)
+for (tInflow in c(7, 8, 8.3, 8.6, 9, 10, 11, 12,14)*1e6){
   
     #tInflow <- 6e6
     #debug(TimeToReservoirTarget)
@@ -631,7 +660,7 @@ dfTimeResults$LeeFerryNaturalFlow <- dfTimeResults$Inflow + as.numeric(vMeadInfl
 dfTimeResults$PowellRelease <- MeadInflowToPowellRelease(dfTimeResults$Inflow, GrandCanyonTribFlows)
 
 # Select even rows for plotting flow labels
-dfTimeResultsEven <- dfTimeResults[seq(3,nrow(dfTimeResults),by=3),]
+dfTimeResultsEven <- dfTimeResults[seq(4,nrow(dfTimeResults),by=4),]
 
 ## Define a polygons that identify the follow:
 # 1. Level below Mead 1025 where deliveries are no longer defined by Drought Contingency Plan
@@ -659,6 +688,7 @@ dfPolyLabel2 <- data.frame(id = ids[2],
 dfPolyLabel2$MidYear <- 0
 dfPolyLabel2$MidMead <- 0
 dfPolyLabel2$MidInflow <- mean(c(5,12))
+point <- 1
 dfPolyLabel2[point,c("MidYear")] =  0.35*min(dfPositions[(4*(point-1)+1):(4*point),c("Year")]) + 0.65*max(dfPositions[(4*(point-1)+1):(4*point),c("Year")])
 
 
@@ -731,7 +761,7 @@ ggplot() +
     
   theme_bw() +
   
-  labs(x="Year", y="Mead Active Storage (MAF)", color =  "Natural Inflow\n(MAF/year)") +
+  labs(x="", y="Mead Active Storage (MAF)", color =  "Natural Inflow\n(MAF/year)") +
   #theme(text = element_text(size=20), legend.title=element_blank(), legend.text=element_text(size=18),
   #      legend.position = c(0.8,0.7))
   theme(text = element_text(size=20), legend.text=element_text(size=18),
