@@ -711,8 +711,13 @@ ggplot() +
   #geom_label(aes(x=2037, y=20, label="Steady Inflow (MAF/year)\n(Stress Test)", fontface="bold"), angle = 0, size = 7) +
    
   #Label the constant inflow contours
-  geom_label(data=dfTimeResultsEven , aes( x = Year, y = Storage/1e6, label = Inflow/1e6, fontface="bold"), size=5, angle = 0) + 
-  #Label the polygons
+  #Label inflow traces excluding non-integer traces
+  geom_label(data=dfTimeResultsEven %>% filter(Inflow %in% seq(7*1e6, 14*1e6, by=1*1e6)), aes( x = Year, y = Storage/1e6, label = Inflow/1e6, fontface="bold"), size=5, angle = 0) + 
+  #Label non integer inflow traces starting at year 8
+  geom_label(data=dfTimeResultsEven %>% filter(!(Inflow %in% seq(7*1e6, 14*1e6, by=1*1e6)), index >= 8), aes( x = Year, y = Storage/1e6, label = Inflow/1e6, fontface="bold"), size=5, angle = 0) + 
+  
+  
+   #Label the polygons
   geom_label(data=dfPolyLabel, aes(x = MidYear, y = MidMead/1e6, label = Label, fontface="bold", fill=as.factor(dfPolyLabel$DumVal)), size=6, angle = 0) + 
   
   #Y-axis: Active storage on left, Elevation with labels on right 
