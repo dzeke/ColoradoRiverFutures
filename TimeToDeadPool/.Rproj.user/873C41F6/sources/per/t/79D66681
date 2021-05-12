@@ -12,15 +12,15 @@
     "path" : null,
     "project_path" : null,
     "properties" : {
-        "cacheKey" : "774B86AA",
+        "cacheKey" : "94BBF99",
         "caption" : "dfTimeResultsEven",
-        "contentUrl" : "grid_resource/gridviewer.html?env=&obj=dfTimeResultsEven&cache_key=774B86AA",
-        "displayedObservations" : 111,
+        "contentUrl" : "grid_resource/gridviewer.html?env=&obj=dfTimeResultsEven&cache_key=94BBF99",
+        "displayedObservations" : "54",
         "environment" : "",
         "object" : "dfTimeResultsEven",
-        "preview" : 0,
-        "totalObservations" : 111,
-        "variables" : 7
+        "preview" : "0",
+        "totalObservations" : "54",
+        "variables" : "7"
     },
     "relative_order" : 4,
     "source_on_save" : false,

@@ -13,6 +13,8 @@ The same intervening flows are estimated from USGS data as: + (Colorado River ne
 [9404200] - Colorado River at Lees Feery [9382000] + Virign River at Littlefield [9415000] )
 
 ## Output Plots
+1. Time series of total intervening flow by the two methods. The Natural Flow data are split before
+and after 1990.
 1. Box and whiskers of total intervening flow by the two methods. The Natural Flow data are split before
 and after 1990.
 1. Correlation of Grand Canyon intervening flows to Lee Ferry natural flow. Again by method and

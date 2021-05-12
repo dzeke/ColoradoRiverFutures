@@ -1,7 +1,7 @@
 ---
 title: "Lake Powell Inflows and Releases"
 author: "David E. Rosenberg"
-date: "July 7, 2020"
+date: "May 12, 2021"
 output: pdf_document
 ---
 
@@ -9,11 +9,12 @@ output: pdf_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Markdown
+## Overview
 
-This is an R Markdown document. This document reads monthly USBR data on Lake Powell Inflows and Releases (https://www.usbr.gov/rsvrWater/HistoricalApp.htm). The code aggregates data to yearly (water year starting Oct 1) and decadal values and then plots 10-year releases incomparison to Compact Article 3d 10-year requirements, inflows, and releaes.
+This is an R Markdown document. This document reads monthly USBR data on Lake Powell Inflows and Releases (https://www.usbr.gov/rsvrWater/HistoricalApp.htm). The code aggregates data to yearly (water year starting Oct 1) and decadal values and then plots 10-year releases incomparison to Compact Article 3d 10-year requirements, inflows, and releaes. The document alsow shows histograms of Powell inflows and realeases.
 
-
+## Requested Citation
+David E. Rosenberg (2021), "Lake Powell Inflows and Releases." Utah State University. Logan, Utah. https://github.com/dzeke/ColoradoRiverFutures/tree/master/Powell10year.
 
 ```{r PowellAnnualDecade, include=FALSE, echo=FALSE, warning=FALSE, message=FALSE}
 
@@ -310,6 +311,31 @@ ggplot(dfPowellHistAnnual, aes(x=OneYearInflow)) +
   labs(x="Powell Inflow\n(million acre feet per year)", y="Frequency\n(number of years)") +
   theme(text = element_text(size=20), legend.title=element_blank(), legend.text=element_text(size=18),
       legend.key = element_blank())
+
+```
+
+# Histogram of Powell Releases
+
+```{r PowellReleaseHistogram, echo=FALSE, warning=FALSE, message=FALSE}
+
+#Histogram -- frequency of annual release volumes
+ggplot(dfPowellHistAnnual, aes(x=OneYearRelease)) +
+  geom_histogram(color="darkmagenta", fill="magenta", binwidth = 1) +
+  
+  scale_x_continuous(limits = c(2,22), breaks = seq(2,22,by=1)) +
+  #scale_y_continuous(breaks = seq(0,11,by=1)) +
+  
+  labs(x="Powell Release\n(million acre feet per year)", y="Frequency\n(number of years)") +
+  theme(text = element_text(size=20), legend.title=element_blank(), legend.text=element_text(size=18),
+        legend.key = element_blank())
+
+ggsave("PowellInflowHistogram.png", width=9, height = 6.5, units="in")
+
+print(paste0("Number of Years of Powell releases = ", max(dfPowellHistAnnual$Year) - min(dfPowellHistAnnual$Year) + 1))
+
+# Sort the Powell releases by value and year to faciliate easy identify of years
+dfPowellHistAnnualSort <- dfPowellHistAnnual[order(dfPowellHistAnnual$OneYearRelease,dfPowellHistAnnual$Year), c("OneYearRelease","Year")]
+
 
 
 ```

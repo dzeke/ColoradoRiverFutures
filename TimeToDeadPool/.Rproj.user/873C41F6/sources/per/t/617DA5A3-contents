@@ -283,44 +283,9 @@ colnames(dfGCFlowsByYear) <- c("WaterYear","GCFlow")
 colnames(dfLeeFerryByYear) <- c("WaterYear", "LeeFerryFlow")
 dfGCFlowsByYear$LeeFerryFlow <- dfLeeFerryByYear$LeeFerryFlow
 
-# #### Figure 0 - Plot Grand Canyon Tributary Inflows as a box-and-whiskers
-# #Plot as a box-and whiskers
-# 
-# ggplot(dfGCFlowsByYear, aes(y=GCFlow/1e6)) +
-#     geom_boxplot() +
-#     theme_bw() +
-#     
-#     labs(x="", y="Grand Canyon Tributary Inflows\n(MAF per year)") +
-#     #theme(text = element_text(size=20), legend.title=element_blank(), legend.text=element_text(size=18),
-#     #      legend.position = c(0.8,0.7))
-#     theme(text = element_text(size=20), 
-#           legend.position = "none",axis.text.x = element_blank(), axis.ticks = element_blank())
-# 
-# ggsave("Fig0-GrandCanyonTribFlows.jpg",width = 6,
-#        height = 6, units = "in",
-#        dpi = 300)
 
 #Calculate the median value
 vMedGCFlow <- median(dfGCFlowsByYear$GCFlow)
-
-
-# Show the correlation between Grand Canyon Flow and Lee Ferry Flow
-ggplot(dfGCFlowsByYear, aes(x= LeeFerryFlow/1e6, y=GCFlow/1e6)) +
-  geom_point() +
-  theme_bw() +
-  
-  labs(x="Lee Ferry Natural Flow\n(MAF per year)", y="Grand Canyon Tributary Inflows\n(MAF per year)") +
-  #theme(text = element_text(size=20), legend.title=element_blank(), legend.text=element_text(size=18),
-  #      legend.position = c(0.8,0.7))
-  theme(text = element_text(size=20), 
-        legend.position = "none")
-
-cor(dfGCFlowsByYear)
-
-## Export the data so can run sequence average analysis by Salehabadi and Tarboton (2020)
-write.csv(x=dfGCFlowsByYear, file = "GrandCanyonFlows.csv", row.names = FALSE)
-
-
 
 # Read in the ISG and DCP cutbacks from Excel
 dfCutbacksElev <- read_excel(sExcelFile, sheet = "Data",  range = "H21:H41") #Elevations
@@ -446,6 +411,7 @@ tMaxVol <- as.numeric(round(dfMaxStor %>% filter(Reservoir %in% c(sReservoir)) %
 # CRSS value
 eRateToUse <- dfEvapRates %>% filter(Reservoir %in% c(sReservoir), Source %in% c("CRSS")) %>% select(Rate.ft.per.year)
 # 5-year running average from Moreo (2015)
+eRateMoreo <- c(5.7,6.2,6.8)
 eRateToUse <- 6.2 #I suggest that it is better to use the available 5-yr average for the latest Moreo data for Mead (6.2 ft/yr 2010-2015) 
 
 yMax = 10
@@ -608,7 +574,7 @@ dfInflowSimulations <- data.frame(Storage=0, Year=0, index=0, Inflow=0, Release=
 #Mead Initial Storage on April 9, 2019
 sMeadApril2019 <- interp1(xi = 1089.74,y=dfMeadElevStor$`Live Storage (ac-ft)`,x=dfMeadElevStor$`Elevation (ft)`, method="linear")
 sMeadOct2019 <- interp1(xi = 1083.05,y=dfMeadElevStor$`Live Storage (ac-ft)`,x=dfMeadElevStor$`Elevation (ft)`, method="linear")
-sMeadOct2020 <- 10.1*1e6
+sMeadOct2020 <- 10.1*1e6 # Oct 2020 volume ## 7.3*1e6 is long term ending storage at 9 maf per year
 sMeadStartStorage <- sMeadOct2020
 sMeadDeadPool <- interp1(xi = 900,y=dfMeadElevStor$`Live Storage (ac-ft)`,x=dfMeadElevStor$`Elevation (ft)`, method="linear")
 
@@ -616,6 +582,8 @@ sMeadDeadPool <- interp1(xi = 900,y=dfMeadElevStor$`Live Storage (ac-ft)`,x=dfMe
 startYear <- 2021
 #Define the maximum number of iterations. Use an even number so the inflow labels plot nicely
 maxIts <- 24
+#Define the evaporation rate
+eRateToUse <- eRateMoreo[2]
 
 #Loop over steady natural inflow values (stress tests)
 for (tInflow in c(7, 8, 8.3, 8.6, 9, 10, 11, 12,14)*1e6){

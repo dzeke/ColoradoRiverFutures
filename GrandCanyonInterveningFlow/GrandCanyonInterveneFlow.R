@@ -7,11 +7,12 @@
 #
 #        From USGS gages: (Colorado River near Peach Springs [9404200] - Colorado River at Lees Feery [9382000] + Virign River at Littlefield [9415000] )
 #
-#     Produces 3 plots for each data set:
+#     Produces 5 plots for each data set:
 #
-#       1. Box and whiskers of flow
-#       2. Correlation with Lee Ferry Natural Flow
-#       3. Dotty plot of Salehabadi and Tarboton (2020)
+#       1. Time series
+#       2. Box and whiskers of flow
+#       3. Correlation with Lee Ferry Natural Flow
+#       4. and 5. Dotty plot of Salehabadi and Tarboton (2020) for each data set
 #
 #
 #     David E. Rosenberg
@@ -144,8 +145,30 @@ dfGCFDataToUse2$Source <- 'USGS'
 #Bind the two data sets together
 dfGCFDataToUse <- rbind(dfGCFDataToUse, dfGCFDataToUse2)
 
+#### Figure 1 - Time series
 
-#### Figure 1 - Plot Grand Canyon Tributary Inflows as a box-and-whiskers
+ggplot() +
+  #Data after 1989
+  geom_line(data = dfGCFDataToUse, aes(x=WaterYear , y=GCFlow, color=Source, linetype=Source), size=1.5) +
+  theme_bw() +
+  
+  scale_color_manual(values = c("Red", "Blue")) +
+  scale_linetype_manual(values = c("solid","longdash")) +
+  
+  #Make one combined legend
+  guides(color = guide_legend(""), linetype = guide_legend("")) +
+  
+  theme_bw() +
+  
+  labs(x="", y="Grand Canyon Intervening Flow\n(MAF per year)", color="") +
+  #theme(text = element_text(size=20), legend.title=element_blank(), legend.text=element_text(size=18),
+  #      legend.position = c(0.8,0.7))
+  theme(text = element_text(size=20))
+
+
+
+
+#### Figure 2 - Plot Grand Canyon Tributary Inflows as a box-and-whiskers
 #Plot as a box-and whiskers
 
 ggplot() +
@@ -168,7 +191,7 @@ ggplot() +
         legend.position = "none")
 
 
-#### Figure 2. Show the correlation between Grand Canyon Flow and Lee Ferry Flow
+#### Figure 3. Show the correlation between Grand Canyon Flow and Lee Ferry Flow
 #
 ggplot() +
   #Points after 1990 in Blue and Red
@@ -196,7 +219,7 @@ mCorr <- cor(as.data.frame(dfGCFDataToUse %>% filter(WaterYear >= 1990, Source =
 print(paste("Correlation = ",round(mCorr[1,2],2)))
 
 
-#### Figures 3 and 4. Show the sequence average plot using Salehabadi code for Natural Flow data set and USGS data
+#### Figures 4 and 5. Show the sequence average plot using Salehabadi code for Natural Flow data set and USGS data
 
 ############################################################################################################
 ###### Sequence Average Plot (Dotty Plot)                                                             ######

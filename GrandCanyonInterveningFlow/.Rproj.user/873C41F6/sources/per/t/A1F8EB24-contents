@@ -11,7 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Description
 
-This is an R Markdown document. This document uses the USBR Natural Flow Database (1907 to 2016) and USGS data (1990 to present) to show Grand Canyon Intervening Flows from Lake Powell to Lake Mead. 
+This is an R Markdown document. This document uses the USBR Natural Flow Database (1907 to 2016) and USGS data (1990 to present) to show Grand Canyon Intervening Flows from Lake Powell to Lake Mead. This analysis includes variations in flows, correlations to Lee Ferry natural flows, and sequence average values using the method of Salehabadi and Tarboton (2020). 
 
 The Natural Flow data include:
 
@@ -192,10 +192,36 @@ dfGCFDataToUse <- rbind(dfGCFDataToUse, dfGCFDataToUse2)
 
 ```
 
-# Figure 1. Grand Canyon intervening flow (Lees Ferry to Lake Mead)
+# Figure 1. Grand Canyon intervening flow (Lees Ferry to Lake Mead) (time series)
 ```{r ICSFig1, echo=FALSE, warning=FALSE, message=FALSE}
 
-#### Figure 1 - Plot Grand Canyon Tributary Inflows as a box-and-whiskers
+#### Figure 1 - Time series
+
+ggplot() +
+  #Data after 1989
+  geom_line(data = dfGCFDataToUse, aes(x=WaterYear , y=GCFlow, color=Source, linetype=Source), size=1.5) +
+  theme_bw() +
+  
+  scale_color_manual(values = c("Red", "Blue")) +
+  scale_linetype_manual(values = c("solid","longdash")) +
+  
+  #Make one combined legend
+  guides(color = guide_legend(""), linetype = guide_legend("")) +
+  
+  theme_bw() +
+  
+  labs(x="", y="Grand Canyon Intervening Flow\n(MAF per year)", color="") +
+  #theme(text = element_text(size=20), legend.title=element_blank(), legend.text=element_text(size=18),
+  #      legend.position = c(0.8,0.7))
+  theme(text = element_text(size=20))
+
+
+```
+
+# Figure 2. Grand Canyon intervening flow (Lees Ferry to Lake Mead) (box plot)
+```{r ICSFig2, echo=FALSE, warning=FALSE, message=FALSE}
+
+#### Figure 2 - Plot Grand Canyon Tributary Inflows as a box-and-whiskers
 #Plot as a box-and whiskers
 
 ggplot() +
@@ -219,8 +245,8 @@ ggplot() +
 
 ```
 
-# Figure 2. Correlation between Grand Canyon intervening flow and Lee Ferry natural flow
-```{r ICSFig2, echo=FALSE, warning=FALSE, message=FALSE}
+# Figure 3. Correlation between Grand Canyon intervening flow and Lee Ferry natural flow
+```{r ICSFig3, echo=FALSE, warning=FALSE, message=FALSE}
 
 #### Figure 2. Show the correlation between Grand Canyon Flow and Lee Ferry Flow
 #
@@ -253,8 +279,8 @@ print(paste("Correlation in USGS after 1990 = ",round(mCorr[1,2],2)))
 
 ```
 
-# Figures 3 and 4. Sequence average flows for USGS and Natural Flow data sets
-```{r ICSFig3, echo=FALSE, warning=FALSE, message=FALSE}
+# Figures 4 and 5. Sequence average flows for USGS and Natural Flow data sets
+```{r ICSFig4, echo=FALSE, warning=FALSE, message=FALSE}
 
 
 #### Figures 3 and 4. Show the sequence average plot using Salehabadi code for Natural Flow data set and USGS data

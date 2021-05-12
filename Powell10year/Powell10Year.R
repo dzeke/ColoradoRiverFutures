@@ -322,3 +322,21 @@ ggplot(dfPowellHistAnnual, aes(x=OneYearInflow)) +
       legend.key = element_blank())
 
 ggsave("PowellInflowHistogram.png", width=9, height = 6.5, units="in")
+
+#Histogram -- frequency of annual release volumes
+ggplot(dfPowellHistAnnual, aes(x=OneYearRelease)) +
+  geom_histogram(color="darkmagenta", fill="magenta", binwidth = 1) +
+  
+  scale_x_continuous(limits = c(2,22), breaks = seq(2,22,by=1)) +
+  #scale_y_continuous(breaks = seq(0,11,by=1)) +
+  
+  labs(x="Powell Release\n(million acre feet per year)", y="Frequency\n(number of years)") +
+  theme(text = element_text(size=20), legend.title=element_blank(), legend.text=element_text(size=18),
+        legend.key = element_blank())
+
+ggsave("PowellInflowHistogram.png", width=9, height = 6.5, units="in")
+
+print(paste0("Number of Years of Powell releases = ", max(dfPowellHistAnnual$Year) - min(dfPowellHistAnnual$Year) + 1))
+
+# Sort the Powell releases by value and year to faciliate easy identify of years
+dfPowellHistAnnualSort <- dfPowellHistAnnual[order(dfPowellHistAnnual$OneYearRelease,dfPowellHistAnnual$Year), c("OneYearRelease","Year")]
