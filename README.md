@@ -32,7 +32,13 @@ an alternative management paradigm where reservoir evaporation is counted as par
 1. **Runge_MCDM_Analysis** - interactive parallel coordinate plot visualization of the 18 objectives use in the analysis by Runge et al of Glend Canyon Dam management alternatives. Runge, M. C., LaGory, K. E., Russell, K., Balsom, J. R., Butler, R. A., Coggins, J. L. G., Grantz, K. A., Hayse, J., Hlohowskyj, I., Korman, J., May, J. E., O'Rourke, D. J., Poch, L. A., Prairie, J. R., VanKuiken, J. C., Van Lonkhuyzen, R. A., Varyu, D. R., Verhaaren, B. T., Veselka, T. D., Williams, N. T., Wuthrich, K. K., Yackulic, C. B., Billerbeck, R. P., and Knowles, G. W. (2015). "Decision analysis to support development of the Glen Canyon Dam long-term experimental and management plan." 2015-5176, U.S. Geological Survey, Reston, VA. http://pubs.er.usgs.gov/publication/sir20155176.
 1. **TimeToDeadPool** - a steady deterministic scenario analysis of the number of years to hit Lake Mead dead pool (or other target elevation) given a starting storage volume and steady reservoir inflow. Used to explore scenarios of inflow from 7 to 14 maf per year every year and identify potential effects of additional voluntary water conservation.
 
-To run any code, download and install R and RStudio. Within the subfolder, open the .Rproject file. Select the tab for the R Markdown file (.rmd) and click **Knit**. The code will generate a single PDF file of the same file name with all results.
-For subfolders without an .Rmd file, select the tab for the .R file. Select all the code, and run. The results will generate in the console.
+## Directions to Run
+
+1. Download this repository to your local machine (towards top of webpage, click green **Code** button => **Download Zip**). Unzip contents.
+1. Download and install R (https://cran.r-project.org/) and RStudio (https://www.rstudio.com/).
+1. Within the a downloaded subfolder, open the .Rproject file. R Studio will open.
+1. Select the tab for the R Markdown file (.Rmd) and click **Knit**.
+1. The code will generate a single PDF file of the same file name with all results.
+1. If the subfolder does not have an .Rmd file, select the tab for the .R file in  R Studio. Select all the code (Ctrl-A), and run (Ctrl-enter or click the **Run** button on the tool bar below the file tabs). The results will generate in the console.
 
 This repository is updated as new work is undertaken.
