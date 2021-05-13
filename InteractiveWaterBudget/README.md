@@ -1,4 +1,4 @@
-# Encouraging more Water Conservation in the Colorado River Basin
+# Interactive Water Budget for the Colorado River Basin
 
 This folder contains an interactive water budget tool for the Colorado River Basin that allows Upper Basin, Lower Basin, and Mexico representatives to role play the management of Lake Powell and Lake Mead under different hydrologic scenarios. 
 The role play allows participants to explore political water manager decisions for reservoir storage, release, and water conservation decisions plus voluntary, compensated transfers between users.
