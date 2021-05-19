@@ -21,8 +21,8 @@ I recommended to move the Excel workbook into Google Docs so that users can play
 David E. Rosenberg (2021). "Encouraging more Conservation in the Colorado River Basin." Utah State University, Logan, UT. https://github.com/dzeke/ColoradoRiverFutures/tree/master/InteractiveWaterBudget.
 ## Explanation of Contents
 
-1. **InteractiveWaterBudget-PowellMead.xlsx** - An Excel file with the water budget model and directions for the role play. This version allows users to make separate storage, account, and release/consumption decisions for Lakes Powell and Mead.  See the ReadMe-Directions worksheet first.
-1. **InteractiveWaterBudget-CombinedPowellMead.xlsx** - An Excel file with the water budget model and directions for the role play. combines Powell and Mead storage into a single lumped reservoir and account.
+1. **InteractiveWaterBudget-CombinedPowellMead.xlsx** - An Excel file with the water budget model and directions for the role play. This version combines Powell and Mead storage into a single lumped reservoir and account. Upper Basin, Lower Basin, and Mexico users make their separate storage, account, and release/consumption decisions from a combined Lake Powell and Lake Mead object. A political
+decision controlls how water is physically stored in the two reservoir.  See the ReadMe-Directions worksheet for directions.
 1. **Hydrology** - Folder with Excel files used to generate hydrologic scenarios. CRB_29gages.xlsx: Listing of gages in the Colorado River basin used to estimate natural flow. NaturalFlows1906-2018_20200110.xlsx: Natural flow hydrology downloaded from the USBR website and modified to pick out particular 10- and 20- year sequences of flows from the observed and paleo reconstructed records.
 1. **OldVersions** - Folder with older versions of the interactive water budget.
 1. **BenefitsDrawbacksInteractiveWaterManagement.docx** - A Word file with text describing the benefits and drawbacks of interactive water management.
@@ -34,3 +34,4 @@ David E. Rosenberg (2021). "Encouraging more Conservation in the Colorado River 
 ## License
 BSD-3-Clause (https://github.com/dzeke/ColoradoRiverFutures/blob/master/LICENSE). Available to use, modify, distribute, etc. for free.
 All modified or derivative products must use the same BSD-3-Clause license. This license keeps this work in the public domain forever.
+
