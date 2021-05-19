@@ -219,9 +219,11 @@ ggplot() +
   geom_line(data=dfPowellHistAnnual,aes(x=DateAsValue,y=TenYearRelease, color="10-Year Total"), size=2) +
   
   # 10-year 75 MAF target
-  geom_line(data=dfPowellHistAnnual,aes(x=DateAsValue,y=TenYearTarget, color="75 MAF Target"), size=2) +
+ # geom_line(data=dfPowellHistAnnual,aes(x=DateAsValue,y=TenYearTarget, color="75 MAF Target"), size=2) +
   # 10-year 82.3 MAF target. 82.3 = 75 to Lower Basin + 7.25 to Mexico - 0.2 Help from Paria River
   geom_line(data=dfPowellHistAnnual,aes(x=DateAsValue,y=TenYearTarget82, color="82.3 MAF Target"), size=2) +
+  
+  scale_color_manual(values = c("Blue","Red", "Purple"), breaks = c("10-Year Total", "82.3 MAF Target","1-Year Total" )) +
   
   theme_bw() +
   #coord_fixed() +
@@ -248,7 +250,7 @@ ggplot() +
   theme_bw() +
   #coord_fixed() +
   labs(x="", y="Powell Release above 10-Year Requirement\n(million acre-feet)") +
-  theme(text = element_text(size=20), legend.title=element_blank(), legend.text=element_text(size=18))
+  theme(text = element_text(size=20), legend.title=element_blank(), legend.text=element_text(size=18), legend.position = "none")
 #theme(text = element_text(size=20), legend.text=element_text(size=16)
 
 ### Powell Annual Inflow
@@ -335,6 +337,27 @@ print(paste0("Number of Years of Powell releases = ", max(dfPowellHistAnnual$Yea
 
 # Sort the Powell releases by value and year to faciliate easy identify of years
 dfPowellHistAnnualSort <- dfPowellHistAnnual[order(dfPowellHistAnnual$OneYearRelease,dfPowellHistAnnual$Year), c("OneYearRelease","Year")]
+
+```
+
+# Compare Powell Releaes and Inflows
+
+```{r PowellReleaseInflow, echo=FALSE, warning=FALSE, message=FALSE}
+
+#Compare plot
+ggplot(dfPowellHistAnnual, aes(x=OneYearInflow, y=OneYearRelease)) +
+  geom_point(color="darkmagenta", fill="magenta") +
+  
+  #Add 1:1 line
+  geom_abline(slope=1, intercept=0, size=2) +
+  
+  scale_x_continuous(limits = c(6,22), breaks = seq(6,22,by=2)) +
+  scale_y_continuous(limits = c(6,22), breaks = seq(6,22,by=2)) +
+  #scale_y_continuous(breaks = seq(0,11,by=1)) +
+  
+  labs(x="Inflow\n(million acre feet per year)", y="Release\n(million acre feet per year)") +
+  theme(text = element_text(size=20), legend.title=element_blank(), legend.text=element_text(size=18),
+        legend.key = element_blank())
 
 
 
