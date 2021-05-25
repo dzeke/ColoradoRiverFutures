@@ -1,6 +1,6 @@
 # TimeToDeadPool.r
 #
-# Calculate the time to reach the reservoir dead pool based (or some other criteria) from an initial storage and steady inflow. Plot
+# Calculate the time to reach the reservoir dead pool based (or some other criteria) from an initial storage and steady inflow every year. Plot
 # as Time To Dead Pool (y axis) vs Reservoir storage (x-axis). Show for different release policies 
 # (release as a function of storage and inflow) and reservoirs.
 
@@ -10,8 +10,8 @@
 #   Storage_t+1 = Storage_t + Inflow - Release - Evaporation loss_t.
 # We simply count the numer of iterations until Storage_ t+1 goes to zero or becomes really large.
 #
-# This is a deterministic version of analysis by Barnett, T. P., and Pierce, D. W. (2008). "When will Lake Mead go dry?" Water Resources Research, 44(3). https://agupubs.onlinelibrary.wiley.com/doi/abs/10.1029/2007WR006704.
-# The deterministic analysis makes it easier to identify new release policies that are functions of storage AND inflow
+# This is a scenario-based version of analysis by Barnett, T. P., and Pierce, D. W. (2008). "When will Lake Mead go dry?" Water Resources Research, 44(3). https://agupubs.onlinelibrary.wiley.com/doi/abs/10.1029/2007WR006704.
+# The scenario-based analysis makes it easier to identify new release policies that are functions of storage AND inflow
 # to balance supply and demand over the long term.
 #
 # Data is drawn from CRSS, analysis of DCP, and other sources as docummented in source Excel files (see below)
@@ -785,7 +785,7 @@ ggplot() +
   theme(text = element_text(size=20), legend.text=element_text(size=18)) #,
         #legend.position = "none")
 
-#Another Plot of Lake Powell Release: storage versus time with different Annual Powell Release traces. Different DCP zones. And a vertical line showing the end of the Interim Guidelines
+#Another Plot of Lake Mead Release: storage versus time with different Annual Mead Release traces. Different DCP zones. And a vertical line showing the end of the Interim Guidelines
 ggplot() +
   #Polygon zones
   geom_polygon(data = dfPolyAll, aes(x = Year, y = MeadVol/1e6, group = id, fill = as.factor(dfPolyAll$DumVal)), show.legend = F) +
