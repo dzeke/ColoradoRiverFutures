@@ -361,8 +361,8 @@ dfPowellEqLevels$EqMeadLev <- interpNA(xi = dfPowellEqLevels$Volume*1000000,x=df
 
 
 dfMeadValsAdd <- data.frame(Reservoir = "Mead",
-                            variable = c("Mead Flood Pool","Powell Eq. Level (2019)","DCP trigger","ISG trigger","SNWA Intake #1","Mead Eq. Tier","SNWA Intake #2","Mead Power","SNWA Intake #3"),
-                            level = c(max(dfReservedFlood$Mead_level),dfPowellEqLevels$EqMeadLev[12],1090,1075,1050,1025,1000,955,860))
+                            variable = c("Flood pool","Pearce rapid","DCP trigger","ISG trigger","SNWA intake #1","DCP bottom","SNWA intake #2","Mead power","SNWA intake #3"),
+                            level = c(max(dfReservedFlood$Mead_level),1135,1090,1075,1050,1025,1000,955,860))
 nRowMead <- nrow(dfMeadValsAdd)
 dfMeadValsAdd$value <- 0
 #Interpolate live storage volume
@@ -377,12 +377,12 @@ dfMeadAllPools <- rbind(dfMeadVals,dfMeadValsAdd)
 
 #Pull out the desired rows
 #dfMeadPoolsPlot <- dfMeadAllPools[c(3,6,7,9:13,16),]
-cMeadVarNames <- c("Inactive Capacity", "Mead Power", "SNWA Intake #2", "Mead Eq. Tier", "SNWA Intake #1", "DCP trigger", "Powell Eq. Level (2019)",
-                  "Mead Flood Pool", "Live Capacity")
+cMeadVarNames <- c("Inactive Capacity", "Mead power", "SNWA intake #2", "DCP bottom", "SNWA intake #1", "DCP trigger", "Pearce rapid",
+                  "Flood pool", "Live capacity")
 dfMeadPoolsPlot <- dfMeadAllPools %>% filter(variable %in% cMeadVarNames) %>% arrange(level)
 dfMeadPoolsPlot$name <- as.character(dfMeadPoolsPlot$variable)
 #Rename a few of the variable labels
-dfMeadPoolsPlot[1,c("name")] <- "Dead Pool"
+dfMeadPoolsPlot[1,c("name")] <- "Dead pool"
 #dfMeadPoolsPlot[6,c("name")] <- "Flood Pool (1-Aug)"
 #Create the y-axis tick label from the level and variable
 #dfMeadPoolsPlot$label <- paste(round(dfMeadPoolsPlot$level,0),'\n',dfMeadPoolsPlot$name)
