@@ -575,6 +575,7 @@ dfInflowSimulations <- data.frame(Storage=0, Year=0, index=0, Inflow=0, Release=
 sMeadApril2019 <- interp1(xi = 1089.74,y=dfMeadElevStor$`Live Storage (ac-ft)`,x=dfMeadElevStor$`Elevation (ft)`, method="linear")
 sMeadOct2019 <- interp1(xi = 1083.05,y=dfMeadElevStor$`Live Storage (ac-ft)`,x=dfMeadElevStor$`Elevation (ft)`, method="linear")
 sMeadOct2020 <- 10.1*1e6 # Oct 2020 volume ## 7.3*1e6 is long term ending storage at 9 maf per year
+sMeadApril2021 <- 9.9*1e6  #April 2021 volume
 sMeadStartStorage <- sMeadOct2020
 sMeadDeadPool <- interp1(xi = 900,y=dfMeadElevStor$`Live Storage (ac-ft)`,x=dfMeadElevStor$`Elevation (ft)`, method="linear")
 
@@ -696,6 +697,7 @@ dfIntGuidelinesExpire <- data.frame(Year = c(tInterGuideExpire,tInterGuideExpire
 #Colors for the polygons
 palReds <- brewer.pal(9, "Reds") #For plotting DCP tiers
 
+#
 #Now do the plot: Storage versus time with different Steady Mead inflow traces. Different DCP zones. And a vertical line showing the end of the Interim Guidelines
 ggplot() +
   #Polygon zones
@@ -712,13 +714,13 @@ ggplot() +
    
   #Label the constant inflow contours
   #Label inflow traces excluding non-integer traces
-  geom_label(data=dfTimeResultsEven %>% filter(Inflow %in% seq(7*1e6, 14*1e6, by=1*1e6)), aes( x = Year, y = Storage/1e6, label = Inflow/1e6, fontface="bold"), size=5, angle = 0) + 
+  geom_label(data=dfTimeResultsEven %>% filter(Inflow %in% seq(7*1e6, 14*1e6, by=1*1e6)), aes( x = Year, y = Storage/1e6, label = Inflow/1e6, fontface="bold", color = Inflow/1e6), size=5, angle = 0) + 
   #Label non integer inflow traces starting at year 8
-  geom_label(data=dfTimeResultsEven %>% filter(!(Inflow %in% seq(7*1e6, 14*1e6, by=1*1e6)), index >= 8), aes( x = Year, y = Storage/1e6, label = Inflow/1e6, fontface="bold"), size=5, angle = 0) + 
+  geom_label(data=dfTimeResultsEven %>% filter(!(Inflow %in% seq(7*1e6, 14*1e6, by=1*1e6)), index >= 8), aes( x = Year, y = Storage/1e6, label = Inflow/1e6, fontface="bold", color = Inflow/1e6), size=5, angle = 0) + 
   
   
    #Label the polygons
-  geom_label(data=dfPolyLabel, aes(x = MidYear, y = MidMead/1e6, label = Label, fontface="bold", fill=as.factor(dfPolyLabel$DumVal)), size=6, angle = 0) + 
+  geom_label(data=dfPolyLabel, aes(x = 2041, y = MidMead/1e6, label = Label, fontface="bold", fill=as.factor(dfPolyLabel$DumVal)), size=5, angle = 0) + 
   
   #Y-axis: Active storage on left, Elevation with labels on right 
   scale_y_continuous(breaks = seq(0,tMaxVol,by=5), labels = seq(0,tMaxVol,by=5), limits = c(0, tMaxVol), 
@@ -747,7 +749,165 @@ ggsave("Fig4-StorageVsTime-MeadInflow.jpg",width = 12,
 #Calculate the final Mead Elevation
 dfTimeResults$Elevation <- interpNA(xi = dfTimeResults$Storage,y=dfMeadElevStor$`Elevation (ft)` , x=dfMeadElevStor$`Live Storage (ac-ft)`, method="linear")
 
-#PLOT 2: Storage versus time with different Steady Mead inflow traces. Different DCP zones. And a vertical line showing the end of the Interim Guidelines. Line Labels Show the reservoir release
+#############################
+### Recovery Simulations
+### Start at inflow simulation final points and simulate recovery for different larger inflows
+#
+#   There are two recovery scenarios:
+#    1) Start at 2025 at 1,025 feet and look at recovery flows of 8.7 and 9 maf to stabilize Lake Mead or recover it to 1,050 feet.
+#    2) Start at 2030 at 1,050 feet and look at recovery flows of 10, 11, and 12 maf each year.
+#   The recovery flows can also be looked at as the lake inflow plus additional conservation beyond the DCP target
+# 
+#   Separate simulations are done for each scenarios and stored in separate data frames.
+#   Then the two recovery data frames are plotted on the prior plot.
+#############################
+
+### Recovery case #1: From 2025 and elevation 1,025 feet.
+
+#For each recovery case, define the key start year, start Mead storage, and inflow scenarios to use
+dfRecoveryCases <- data.frame(startYear = c(2025, 2030),
+                              sMeadStartStorage = c(6.0*1e6, as.numeric(dfInflowSimulations %>% filter(Year == 2030, Inflow == 9*1e6) %>% select(Storage))),
+                              inflowsToUse = I(list(c(8, 8.65, 9), c(9, 10,11,12))),
+                              Label = c("Recover from 1,025 ft", "Recover from 1,150 ft"))
+
+#Initialize the results data frame
+dfRecoverySimulations <- data.frame(Storage=0, Year=0, index=0, Inflow=0, Release=0, Case="", startYear=0)
+
+#Loop over recovery cases
+for (iRecovery in 1:nrow(dfRecoveryCases)){
+
+  #Define start year
+  startYear <- dfRecoveryCases$startYear[iRecovery]
+  #Define the start storage
+  sMeadStartStorage <- dfRecoveryCases$sMeadStartStorage[iRecovery]
+  
+  #Define the maximum number of iterations. Use an even number so the inflow labels plot nicely
+  maxIts <- 16
+  
+  #Loop over steady natural inflow values (stress tests)
+  for (tInflow in as.numeric(unlist(dfRecoveryCases$inflowsToUse[iRecovery]))*1e6){
+    
+    #tInflow <- 10e6
+    #debug(TimeToReservoirTarget)
+    
+    # With lower basin delivery losses
+    tRes <- TimeToReservoirTarget(Sinit = sMeadStartStorage, inflow = tInflow, deliveryVolume = dfCutbacks$DeliveryDCP, 
+                                  deliveryResStorage = dfCutbacks$MeadActiveVolume, eRate = eRateToUse,  ResArea = dfMeadElevStor$`Area (acres)`, 
+                                  ResVolume = dfMeadElevStor$`Live Storage (ac-ft)`, MaxIts = maxIts, sMethodRelease = "constant", 
+                                  sMinTarget = sMeadDeadPool, sMaxTarget = tMaxVol*1e6, startYear = startYear )
+    
+    # Without lower basin delivery losses
+    #tRes <- TimeToReservoirTarget(Sinit = sMeadApril2019, inflow = tInflow, deliveryVolume = dfCutbacks$DeliveryDCP, 
+    #           deliveryResStorage = dfCutbacks$MeadActiveVolume, eRate = eRateToUse,  ResArea = dfMeadElevStor$`Area (acres)`, 
+    #           ResVolume = dfMeadElevStor$`Live Storage (ac-ft)`, MaxIts = maxIts, sMethodRelease = "constant", 
+    #              sMinTarget = 0, sMaxTarget = tMaxVol*1e6, startYear = startYear )
+    
+    #Add fields to help in plotting
+    tRes$dfTimeResults$Case <- dfRecoveryCases$Label[iRecovery]
+    tRes$dfTimeResults$startYear <- dfRecoveryCases$startYear[iRecovery]
+    
+    #Append results to dataframe   
+    dfRecoverySimulations <- rbind(dfRecoverySimulations, tRes$dfTimeResults)
+    
+  }
+}
+
+#Remove the first dummy row of zeros
+dfRecoverySimulations <- dfRecoverySimulations[2:nrow(dfRecoverySimulations),]
+
+# Plot up storage over time for different inflow traces.
+dfRecoveryTimeResults <- dfRecoverySimulations  %>% filter(Year <= 2040)  
+
+#Specify the interval in years to show line labels
+nYearInterval <- 5
+
+# Select even rows for plotting recovery labels
+dfRecoveryTimeResultsInterval <- dfRecoveryTimeResults %>% filter(Year %in% seq(min(dfRecoveryCases$startYear) + nYearInterval,max(dfRecoveryTimeResults$Year) - 1, by=nYearInterval))
+
+#Filter out interger inflows to clean up plot compared to just inflows
+dfTimeResultsInteger <- dfTimeResults %>% filter(Inflow %in% seq(7*1e6,10*1e6, by=1e6))
+
+# Select same interval  rows for plotting flow labels
+dfTimeResultsInterval <- dfTimeResults %>% filter(Year %in% seq(min(dfRecoveryCases$startYear), max(Year) - 1, by=nYearInterval))
+
+cRecoveryColors <- c(pBlues[6], "Brown","Purple")
+pPurples <-  brewer.pal(9,"Purples")
+pOranges <- brewer.pal(9,"Oranges")
+cRecoveryColors <- c(pPurples[9], pPurples[7],pBlues[7])
+cRecoveryColors <- c(pBlues[5], pBlues[7])
+
+#Now the recovery plot: Storage versus time with different Steady Mead inflow traces. Different DCP zones. And a vertical line showing the end of the Interim Guidelines
+#Legend does not show, probably because color is not in aes#
+
+xMax <- 2040
+dfPolyAll$Year2 <- ifelse(dfPolyAll$Year == 2045, xMax, dfPolyAll$Year )
+
+
+ggplot() +
+  #Polygon zones
+  geom_polygon(data = dfPolyAll, aes(x = Year2, y = MeadVol/1e6, group = id, fill = as.factor(dfPolyAll$DumVal)), show.legend = F) +
+  #Inflow trace 1
+  geom_line(data=dfTimeResultsInteger %>% filter(Inflow/1e6 == 8, Year <= 2025), aes(x=Year,y=Storage/1e6, group = Inflow/1e6), color = cRecoveryColors[1], size=2) +
+  geom_line(data=dfTimeResultsInteger %>% filter(Inflow/1e6 == 9, Year <= 2030), aes(x=Year,y=Storage/1e6, group = Inflow/1e6), color = cRecoveryColors[2], size=2) +
+  
+  #geom_line(data=dfTimeResultsInteger,aes(x=Year,y=Storage/1e6), color = cRecoveryColors[3], size=2) +
+  
+    #Recovery case 1
+  geom_line(data=dfRecoveryTimeResults %>% filter(as.character(Case) == dfRecoveryCases$Label[1]), aes(x=Year,y=Storage/1e6, group = Inflow/1e6), color = cRecoveryColors[1], size=2, linetype = "dashed") +
+  #Recovery case 2
+  geom_line(data=dfRecoveryTimeResults %>% filter(as.character(Case) == dfRecoveryCases$Label[2]), aes(x=Year,y=Storage/1e6, group = Inflow/1e6), color = cRecoveryColors[2], size=2, linetype = "longdash") +
+  
+  #Interim guidelines expire
+  geom_line(data=dfIntGuidelinesExpire,aes(x=Year,y=MeadVol, linetype="IntGuide"), size=3,show.legend = F) +
+  scale_linetype_manual(name="Guide1", values = c("IntGuide"="longdash"), breaks=c("IntGuide"), labels= c("Interim Guidelines Expire")) +
+  geom_text(aes(x=tInterGuideExpire, y=25, label="Interim Guidelines\nExpire"), angle = 0, size = 6, hjust="middle") +
+  #Label the plot
+  #geom_label(aes(x=2037, y=20, label="Steady Inflow (MAF/year)\n(Stress Test)", fontface="bold"), angle = 0, size = 7) +
+  
+  #Label the constant inflow contours
+  #Label inflow traces excluding non-integer traces
+  geom_label(data=dfTimeResultsInterval %>% filter(Inflow == 8*1e6, Year <= 2025), aes( x = Year, y = Storage/1e6, label = Inflow/1e6, fontface="bold"),  color = cRecoveryColors[1], size=5, angle = 0) + 
+  geom_label(data=dfTimeResultsInterval %>% filter(Inflow == 9*1e6, Year < 2030), aes( x = Year, y = Storage/1e6, label = Inflow/1e6, fontface="bold"),  color = cRecoveryColors[2], size=5, angle = 0) + 
+  
+   #Label the recovery case 1 traces
+  geom_label(data=dfRecoveryTimeResultsInterval %>% filter(Year > startYear, as.character(Case) == dfRecoveryCases$Label[1], !(Inflow/1e6 == 9 & Year == 2035)), aes( x = Year, y = Storage/1e6, label = round(Inflow/1e6, digits = 1), fontface="bold"), color=cRecoveryColors[1], size=5, angle = 0) + 
+  #Label the recovery case 2 traces
+  geom_label(data=dfRecoveryTimeResultsInterval %>% filter(Year > startYear, as.character(Case) == dfRecoveryCases$Label[2]), aes( x = Year, y = Storage/1e6, label = round(Inflow/1e6, digits = 1), fontface="bold"), color=cRecoveryColors[2], size=5, angle = 0) + 
+  
+  
+  #Label the polygons
+  geom_label(data=dfPolyLabel, aes(x = 2037, y = MidMead/1e6, label = Label, fontface="bold", fill=as.factor(dfPolyLabel$DumVal)), size=4, angle = 0) + 
+  
+  #Y-axis: Active storage on left, Elevation with labels on right 
+  scale_y_continuous(breaks = seq(0,tMaxVol,by=5), labels = seq(0,tMaxVol,by=5), limits = c(0, tMaxVol), 
+                     sec.axis = sec_axis(~. +0, name = "Mead Level (feet)", breaks = dfMeadPoolsPlot$stor_maf, labels = dfMeadPoolsPlot$labelSecY)) +
+  scale_x_continuous(limits = c(2020,xMax)) +
+  
+  #limits = c(0,as.numeric(dfMaxStor %>% filter(Reservoir %in% c("Mead")) %>% select(Volume))),
+  #scale_y_continuous(breaks = seq(0,50,by=10), labels = seq(0,50,by=10), limits = c(0, 50)) +
+  
+  #Color scale for polygons - increasing red as go to lower levels
+  #scale_fill_manual(breaks = c(2,1),values = c(palReds[3],palReds[2]),labels = dfPolyLabel$Label ) + 
+  scale_fill_manual(breaks = as.factor(dfPolyLabel$DumVal),values = c(palReds[3],palReds[2]),labels = dfPolyLabel$Label ) + 
+  
+  guides(fill = "none", color = guide_legend(""), linetype = guide_legend("")) + 
+  
+  theme_bw() +
+  
+  labs(x="", y="Mead Active Storage (MAF)") +
+  #theme(text = element_text(size=20), legend.title=element_blank(), legend.text=element_text(size=18),
+  #      legend.position = c(0.8,0.7))
+  theme(text = element_text(size=20), legend.text=element_text(size=18)) #,
+        #legend.position = "none")
+
+ggsave("Fig4b-Recovery-MeadInflow.jpg",width = 12,
+       height = 8, units = "in",
+       dpi = 300)
+
+
+
+
+#PLOT 2: Reservoir releases: Storage versus time with different Steady Mead inflow traces. Different DCP zones. And a vertical line showing the end of the Interim Guidelines. Line Labels Show the reservoir release
 ggplot() +
   #Polygon zones
   geom_polygon(data = dfPolyAll, aes(x = Year, y = MeadVol/1e6, group = id, fill = as.factor(dfPolyAll$DumVal)), show.legend = F) +
