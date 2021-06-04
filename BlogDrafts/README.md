@@ -15,3 +15,4 @@ David E. Rosenberg (2019). "Blog Drafts". Utah State University. Logan, Utah. ht
 
 ## Contents
 1. InvestInFarmWaterConservationToStopBuyAndDry.docx. Target: Inkstain.
+2. HowCanLowerBasinStatesMeetTheirDCPTargets.docx. Target: TBD

@@ -1,0 +1,29 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1622742029328.000,
+    "dirty" : false,
+    "encoding" : "",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "4152149E",
+    "lastKnownWriteTime" : 7308604914264011873,
+    "last_content_update" : 1622742029328,
+    "path" : null,
+    "project_path" : null,
+    "properties" : {
+        "cacheKey" : "633CC891",
+        "caption" : "dfICStoDCPRatioMelt",
+        "contentUrl" : "grid_resource/gridviewer.html?env=&obj=dfICStoDCPRatioMelt&cache_key=633CC891",
+        "displayedObservations" : 6,
+        "environment" : "",
+        "object" : "dfICStoDCPRatioMelt",
+        "preview" : 0,
+        "totalObservations" : 6,
+        "variables" : 3
+    },
+    "relative_order" : 9,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_dataframe"
+}
