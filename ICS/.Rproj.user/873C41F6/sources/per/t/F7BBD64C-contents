@@ -9,9 +9,11 @@
 #
 # Updated April 4, 2021 to look at ICS to DCP conversion
 
+# Updated June 10, 2021 to include 2020 data.
+
 #
 # David E. Rosenberg
-# April 4, 2021
+# June 6, 2021
 # 
 # Utah State University
 # david.rosenberg@usu.edu
@@ -87,14 +89,14 @@ if (!require(stringr)) {
 
 # Read in state balances each year
 sExcelFile <- 'IntentionallyCreatedSurplus-Summary.xlsx'
-dfICSBalance <- read_excel(sExcelFile, sheet = "Sheet1",  range = "B6:F16")
+dfICSBalance <- read_excel(sExcelFile, sheet = "Sheet1",  range = "B6:G17")
 dfICStoDCP <- read_excel(sExcelFile, sheet = "ICStoDCP",  range = "A2:M14")
-dfLimits <- read_excel(sExcelFile, sheet = "Sheet1",  range = "A22:E25")
+dfLimits <- read_excel(sExcelFile, sheet = "Sheet1",  range = "A23:F26")
 
 #Read in max balance
-nMaxBalance <- read_excel(sExcelFile, sheet = "Sheet1",  range = "A22:E25")
+nMaxBalance <- read_excel(sExcelFile, sheet = "Sheet1",  range = "A23:F26")
 #create a data frame
-dfMaxBalance <- data.frame(Year=dfICSBalance$Year, MaxBal = nMaxBalance$Total[2])
+#dfMaxBalance <- data.frame(Year=dfICSBalance$Year, MaxBal =  nMaxBalance$Total[2])
 
 #Read in max deposit per year
 dfMaxAnnualAmounts <- data.frame(Year=dfICSBalance$Year, MaxDeposit = nMaxBalance$Total[1], MaxWithdraw = nMaxBalance$Total[3])
@@ -102,7 +104,7 @@ dfMaxAnnualAmounts <- data.frame(Year=dfICSBalance$Year, MaxDeposit = nMaxBalanc
 cColNames <- colnames(dfICSBalance)
 
 #Melt the data so state columns become a variable
-dfICSBalanceMelt <- melt(data = dfICSBalance,id.vars = "Year", measure.vars = cColNames[1:3])
+dfICSBalanceMelt <- melt(data = dfICSBalance,id.vars = "Year", measure.vars = cColNames[1:4])
 
 #Calculate the Current ICS balance as a fraction of current Mead Storage
 # Data from: https://www.usbr.gov/lc/region/g4000/hourly/levels.html
@@ -110,17 +112,17 @@ nCurrMeadStorage <- 9934*1000  # May 1, 2021
 
 nCurrICSTotal <- dfICSBalanceMelt %>% filter(Year == 2019) %>% summarise(Total = sum(value))
 
-#Lake Powell Unregulated inflow. Data from https://www.usbr.gov/uc/water/crsp/studies/images/PowellForecast.png
-dfLakePowellNatural <- data.frame (Year = seq(2011,2020,by=1), LakePowellFlow = c(16, 5, 5, 10.3, 10.1, 9.7, 12, 5, 13, 5.9))
-
-# Read in Paria flows each year
-sExcelFile <- 'Paria10yearFlow.xlsx'
-dfParia <- read_excel(sExcelFile, sheet = "Sheet1",  range = "N36:P58")
-
-#Join the Lake Powell Natural and Paria data frames by year
-dfLeeFerryNatural <- left_join(dfLakePowellNatural,dfParia,by = c("Year" = "Water Year"))
-
-dfLeeFerryNatural$LeeFerryFlow <- dfLeeFerryNatural$LakePowellFlow + dfLeeFerryNatural$`Flow (acre-feet)`/1e6
+# #Lake Powell Unregulated inflow. Data from https://www.usbr.gov/uc/water/crsp/studies/images/PowellForecast.png
+# dfLakePowellNatural <- data.frame (Year = seq(2011,2020,by=1), LakePowellFlow = c(16, 5, 5, 10.3, 10.1, 9.7, 12, 5, 13, 5.9))
+# 
+# # Read in Paria flows each year
+# sExcelFile <- 'Paria10yearFlow.xlsx'
+# dfParia <- read_excel(sExcelFile, sheet = "Sheet1",  range = "N36:P58")
+# 
+# #Join the Lake Powell Natural and Paria data frames by year
+# dfLeeFerryNatural <- left_join(dfLakePowellNatural,dfParia,by = c("Year" = "Water Year"))
+# 
+# dfLeeFerryNatural$LeeFerryFlow <- dfLeeFerryNatural$LakePowellFlow + dfLeeFerryNatural$`Flow (acre-feet)`/1e6
   
 print("ICS balance as fraction of Mead storage")
 print(sprintf("%.1f%%",nCurrICSTotal$Total/nCurrMeadStorage*100))
@@ -128,14 +130,14 @@ print(sprintf("%.1f%%",nCurrICSTotal$Total/nCurrMeadStorage*100))
 print("Percent of Upper Colorado River Basin area of entire continential US area")
 print(sprintf("%.1f%%",109800/3119884*100))
 
-print("Lake Powell Natural Flow 2011 to 2020 (maf per year)")
-print(sprintf("%.1f", mean(dfLeeFerryNatural$LakePowellFlow)))
-
-print("Paria flow 2011 to 2020 (maf per year)")
-print(sprintf("%.3f", mean(dfLeeFerryNatural$`Flow (acre-feet)`/1e6)))
-
-print("Lee Ferry Natural Flow 2011 to 2020 (maf per year)")
-print(sprintf("%.1f", mean(dfLeeFerryNatural$LeeFerryFlow)))
+# print("Lake Powell Natural Flow 2011 to 2020 (maf per year)")
+# print(sprintf("%.1f", mean(dfLeeFerryNatural$LakePowellFlow)))
+# 
+# print("Paria flow 2011 to 2020 (maf per year)")
+# print(sprintf("%.3f", mean(dfLeeFerryNatural$`Flow (acre-feet)`/1e6)))
+# 
+# print("Lee Ferry Natural Flow 2011 to 2020 (maf per year)")
+# print(sprintf("%.1f", mean(dfLeeFerryNatural$LeeFerryFlow)))
 
 palBlues <- brewer.pal(9, "Blues")
 
@@ -155,8 +157,10 @@ dfMaxBalanceCum$StateAsChar[3] <- "Total/Arizona"
 
 ggplot() +
   
-  geom_bar(data=dfICSBalanceMelt, aes(fill=variable,y=value/1e6,x=Year),position="stack", stat="identity") +
-  geom_line(data=dfMaxBalance, aes(color="Max Balance", y=MaxBal/1e6,x=Year), size=2) +
+  geom_bar(data=dfICSBalanceMelt %>% filter(variable != "Mexico"), aes(fill=variable,y=value/1e6,x=Year),position="stack", stat="identity") +
+  
+  geom_hline(yintercept = nMaxBalance$Total[2]/1e6, size = 2) +
+  #geom_line(data=dfMaxBalance, aes(color="Max Balance", y=MaxBal/1e6,x=Year), size=2) +
   
   scale_fill_manual(name="Guide1",values = c(palBlues[3],palBlues[6],palBlues[9]),breaks=cColNames[1:3]) +
   scale_color_manual(name="Guide2", values=c("Black")) +
@@ -178,7 +182,7 @@ ggplot() +
   labs(x="", y="Intentionally Created Surplus\nAccount Balance\n(MAF)") +
   theme(text = element_text(size=20),  legend.title = element_blank(), 
           legend.text=element_text(size=18),
-          legend.position= c(0.1,0.85))
+          legend.position= c(0.1,0.80))
   
 
 #Plot #2. Stacked bar chart of deposits to ICS accounts by state by year
@@ -215,8 +219,8 @@ ggplot() +
         legend.position= c(1.075,0.5))
 
 
-# Plot Years ICS balance can fund DCP obligation
-# Ratio of ICS balance to DCP obligation (Years)
+# Plot Years ICS balance can fund DCP target
+# Ratio of ICS balance to DCP target (Years)
 dfICStoDCP$ElevationText <- paste(dfICStoDCP$`Mead Elevation (ft)`, "feet")
 cColNamesICStoDCP <- colnames(dfICStoDCP)
 
@@ -236,12 +240,12 @@ ggplot(data=dfICStoDCPMelt %>% filter((ElevationText == "1025 feet") | (Elevatio
 
   theme_bw() +
   
-  labs(x="", y="Years 2019 ICS balance can fund\nDCP obligation") +
+  labs(x="", y="Years 2019 ICS balance can fund\nDCP target") +
   theme(text = element_text(size=20),  legend.title = element_blank(), legend.text=element_text(size=18),
         legend.position= c(1.075,0.5))
 
 
-### Ratio of ICS max withdrawal to DCP obligation
+### Ratio of ICS max withdrawal to DCP target
 dfICStoDCPMeltMaxWithdrawal <- melt(data = dfICStoDCP,id.vars = "ElevationText", measure.vars = cColNamesICStoDCP[8:10])
 
 ggplot(data=dfICStoDCPMeltMaxWithdrawal %>% filter((ElevationText == "1025 feet") | (ElevationText == "1045 feet") )) +
@@ -261,12 +265,12 @@ ggplot(data=dfICStoDCPMeltMaxWithdrawal %>% filter((ElevationText == "1025 feet"
   
   theme_bw() +
   
-  labs(x="", y="Ratio of ICS max withdrawal\nto DCP obligation") +
+  labs(x="", y="Ratio of ICS max withdrawal\nto DCP target") +
   theme(text = element_text(size=20),  legend.title = element_blank(), legend.text=element_text(size=18),
         legend.position= c(1.075,0.5))
 
 
-### Ratio of ICS max deposit to DCP obligation
+### Ratio of ICS max deposit to DCP target
 dfICStoDCPMeltMaxDeposit <- melt(data = dfICStoDCP,id.vars = "ElevationText", measure.vars = cColNamesICStoDCP[11:13])
 
 ggplot(data=dfICStoDCPMeltMaxDeposit %>% filter((ElevationText == "1025 feet") | (ElevationText == "1045 feet") )) +
@@ -292,12 +296,12 @@ ggplot(data=dfICStoDCPMeltMaxDeposit %>% filter((ElevationText == "1025 feet") |
   
   theme_bw() +
   
-  labs(x="", y="Ratio of ICS max deposit\nto DCP obligation") +
+  labs(x="", y="Ratio of ICS max deposit\nto DCP target") +
   theme(text = element_text(size=20),  legend.title = element_blank(), legend.text=element_text(size=18),
         legend.position= c(1.075,0.5))
 
 
-### Ratio of largest ICS deposit on record to DCP obligation
+### Ratio of largest ICS deposit on record to DCP target
 # Get the maximum historical ICS contributions
 dfICSMaxDeposit <- dfICSDeposit %>% summarize(maxAZ = max(Arizona), maxCA = max(California), maxNV = max(Nevada))
 # Get the DCP contributions for 1045 and 1025 feet
