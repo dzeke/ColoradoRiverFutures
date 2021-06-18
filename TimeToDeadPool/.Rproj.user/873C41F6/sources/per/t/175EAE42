@@ -1,0 +1,29 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1624046314827.000,
+    "dirty" : false,
+    "encoding" : "",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "175EAE42",
+    "lastKnownWriteTime" : 8017342125385807465,
+    "last_content_update" : 1624046314827,
+    "path" : null,
+    "project_path" : null,
+    "properties" : {
+        "cacheKey" : "4F75F220",
+        "caption" : "dfReleaseToStabilize",
+        "contentUrl" : "grid_resource/gridviewer.html?env=&obj=dfReleaseToStabilize&cache_key=4F75F220",
+        "displayedObservations" : 174,
+        "environment" : "",
+        "object" : "dfReleaseToStabilize",
+        "preview" : 0,
+        "totalObservations" : 174,
+        "variables" : 2
+    },
+    "relative_order" : 7,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_dataframe"
+}

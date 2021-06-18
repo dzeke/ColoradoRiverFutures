@@ -905,6 +905,97 @@ ggsave("Fig4b-Recovery-MeadInflow.jpg",width = 12,
        dpi = 300)
 
 
+####################################################
+##### Lake Mead recovery by storage level and inflow
+#####
+##### A stacked area plot of release vs inflow to keep reservoir storage steady
+##### also shows the target, mandatory conservation target, additional conservation
+########################################################
+
+# Methods
+# 1. Build a data frame for the desired reservoir levels and inflow scenarios
+# 2. Calculate storage volume, evaporation, and mandatory conservation target for each storage
+# 3. Calculate the release to stabilize reservoir level
+# 4. Plot as area
+
+#Step 1. Build data frame
+cInflowScenRecover <- c(seq(7,14, by=0.05))*1e6
+
+cElevations <- c(1025,1030,1045,1050,1075,1090)
+
+nFlowScensRecover <- length(cInflowScenRecover)
+nElevations <- length(cElevations)
+
+#Create the dataframe. Pad the last column with extra values so have the same number as inflow elements
+dfReleaseToStabilize <- data.frame(Elevation = c(cElevations,rep(cElevations[nElevations], nFlowScensRecover - nElevations)), Inflow = cInflowScenRecover )
+
+#Create combinations of inflow and reservoir elevation
+dfReleaseToStabilize <- dfReleaseToStabilize %>% expand(Elevation, Inflow)
+
+#Calculate storage volume from elevation
+dfReleaseToStabilize$Volume = interpNA(xi=dfReleaseToStabilize$Elevation, y=  dfMeadElevStor$`Live Storage (ac-ft)`, x=dfMeadElevStor$`Elevation (ft)`, method = "constant")
+#Calculate Mandatory target from volume
+dfReleaseToStabilize$MandatoryConservationTarget <- interpNA(xi= dfReleaseToStabilize$Elevation, x= dfCutbacks$`Mead Elevation (ft)`, dfCutbacks$TotalDCP, method = "constant")
+#Calculate evaporation
+dfReleaseToStabilize$Evaporation <- eRateToUse*interpNA(xi = dfReleaseToStabilize$Elevation, x=dfMeadElevStor$`Elevation (ft)`, y=dfMeadElevStor$`Area (acres)`, method = "constant") # Evaporation is a linear interpolation off the reservoir bathymetry curve
+#Calculate the release to stabilize
+dfReleaseToStabilize$ReleaseToStabilize <- dfReleaseToStabilize$Inflow - dfReleaseToStabilize$Evaporation
+#Set the Delivery Target
+dfReleaseToStabilize$DeliveryTarget <- vLowerBasinDeliveryTarget
+
+#Reduce the release to stabilze if it starts crowding the DCP target
+dfReleaseToStabilize$Release <- ifelse(dfReleaseToStabilize$ReleaseToStabilize > dfReleaseToStabilize$DeliveryTarget - dfReleaseToStabilize$MandatoryConservationTarget,
+                                       dfReleaseToStabilize$DeliveryTarget - dfReleaseToStabilize$MandatoryConservationTarget,
+                                       dfReleaseToStabilize$ReleaseToStabilize)
+
+#Label and position the traces
+dfTraceLabels <- data.frame(Elevation=1090,Inflow = c(8.5,7.5,8.5), Release = c(9.6-0.3/2, 8.3, 5), Label=c("Mandatory conservation", "Additional\nconservation", "Release"))
+
+#Calculate the additional conservation needed beyond DCP target
+dfReleaseToStabilize$AdditionalConservation <- dfReleaseToStabilize$DeliveryTarget  - dfReleaseToStabilize$MandatoryConservationTarget - dfReleaseToStabilize$Release
+dfReleaseToStabilize$AdditionalConservation <- ifelse(dfReleaseToStabilize$AdditionalConservation < 0, 0, dfReleaseToStabilize$AdditionalConservation)
+
+#Melt the selected plot columns
+dfReleaseToStabilizeMelt <- melt(dfReleaseToStabilize, id.vars = c("Elevation", "Volume", "Inflow"), measure.vars = c("MandatoryConservationTarget","AdditionalConservation","Release") )
+
+#Create a data frame to right label the y-axis
+dfReleaseLabels <- data.frame(Release = c(vLowerBasinDeliveryTarget,vLowerBasinDeliveryTarget - max(dfReleaseToStabilize$MandatoryConservationTarget),600000),
+                                          Label = c("Target\nrelease","Max. mandatory\n conservation", "Havasu/Parker\nevap. + ET"))
+
+
+ggplot(data = dfReleaseToStabilizeMelt %>% filter(Elevation %in% c("1025","1090"))) +
+  #The main types
+  geom_area(aes(x=Inflow/1e6, y=value/1e6, fill=variable)) +
+
+  #Overplot a line for the line of releases to stabilize inflow
+  geom_line(data=dfReleaseToStabilize %>% filter(Elevation %in% c("1025","1090")), aes(x=Inflow/1e6, y = ReleaseToStabilize/1e6), linetype = "longdash", size = 2) +
+  #label the traces
+  geom_text(data=dfTraceLabels, aes(x = Inflow, y = Release, label = Label), size=6) +
+    
+  facet_wrap( ~ Elevation) +
+  
+  #Limit the x-axis to reasonable inflows
+  #xlim(7,10) +
+  
+  #Reverse x-axis so go from High to Low
+  scale_x_reverse(limits = c(10,7)) +
+  scale_y_continuous(limits = c(0,10), breaks = seq(0,10,by=2), sec.axis = sec_axis(~. +0, name = "", breaks = dfReleaseLabels$Release/1e6, labels = dfReleaseLabels$Label)) +
+  scale_fill_manual(values = c("Red","Pink", pBlues[4]), labels = c("Mandatory conservation\ntarget", "Additional conservation", "Release")) +
+  
+  #Add line annotations
+  #Horizonal line for Havasu Parker
+  geom_hline(yintercept = dfReleaseLabels$Release[3]/1e6, linetype = "dashed", size = 1.25, color = pBlues[9]) +
+  #Sloped line for release to stabalize level
+  #geom_abline(slope = -1, intercept =-0.4, linetype = "longdash", size = 2 ) +
+  
+  theme_bw() +
+  
+  labs(x="Inflow (MAF per year)", y="Release\n(MAF per year)", fill="") +
+  #theme(text = element_text(size=20), legend.title=element_blank(), legend.text=element_text(size=18),
+  #      legend.position = c(0.8,0.7))
+  theme(text = element_text(size=20), legend.text=element_text(size=18), legend.position = "none")
+  
+
 
 
 #PLOT 2: Reservoir releases: Storage versus time with different Steady Mead inflow traces. Different DCP zones. And a vertical line showing the end of the Interim Guidelines. Line Labels Show the reservoir release
