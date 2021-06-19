@@ -765,9 +765,9 @@ dfTimeResults$Elevation <- interpNA(xi = dfTimeResults$Storage,y=dfMeadElevStor$
 ### Recovery case #1: From 2025 and elevation 1,025 feet.
 
 #For each recovery case, define the key start year, start Mead storage, and inflow scenarios to use
-dfRecoveryCases <- data.frame(startYear = c(2025, 2030),
+dfRecoveryCases <- data.frame(startYear = c(2021, 2021),
                               sMeadStartStorage = c(6.0*1e6, as.numeric(dfInflowSimulations %>% filter(Year == 2030, Inflow == 9*1e6) %>% select(Storage))),
-                              inflowsToUse = I(list(c(8, 8.65, 9), c(9, 10,11,12))),
+                              inflowsToUse = I(list(c(8.65, 9, 10), c(9, 10,11,12))),
                               Label = c("Recover from 1,025 ft", "Recover from 1,150 ft"))
 
 #Initialize the results data frame
@@ -847,8 +847,8 @@ ggplot() +
   #Polygon zones
   geom_polygon(data = dfPolyAll, aes(x = Year2, y = MeadVol/1e6, group = id, fill = as.factor(dfPolyAll$DumVal)), show.legend = F) +
   #Inflow trace 1
-  geom_line(data=dfTimeResultsInteger %>% filter(Inflow/1e6 == 8, Year <= 2025), aes(x=Year,y=Storage/1e6, group = Inflow/1e6), color = cRecoveryColors[1], size=2) +
-  geom_line(data=dfTimeResultsInteger %>% filter(Inflow/1e6 == 9, Year <= 2030), aes(x=Year,y=Storage/1e6, group = Inflow/1e6), color = cRecoveryColors[2], size=2) +
+  #geom_line(data=dfTimeResultsInteger %>% filter(Inflow/1e6 == 8, Year <= 2025), aes(x=Year,y=Storage/1e6, group = Inflow/1e6), color = cRecoveryColors[1], size=2) +
+  #geom_line(data=dfTimeResultsInteger %>% filter(Inflow/1e6 == 9, Year <= 2030), aes(x=Year,y=Storage/1e6, group = Inflow/1e6), color = cRecoveryColors[2], size=2) +
   
   #geom_line(data=dfTimeResultsInteger,aes(x=Year,y=Storage/1e6), color = cRecoveryColors[3], size=2) +
   
@@ -858,9 +858,9 @@ ggplot() +
   geom_line(data=dfRecoveryTimeResults %>% filter(as.character(Case) == dfRecoveryCases$Label[2]), aes(x=Year,y=Storage/1e6, group = Inflow/1e6), color = cRecoveryColors[2], size=2, linetype = "longdash") +
   
   #Interim guidelines expire
-  geom_line(data=dfIntGuidelinesExpire,aes(x=Year,y=MeadVol, linetype="IntGuide"), size=3,show.legend = F) +
+  #geom_line(data=dfIntGuidelinesExpire,aes(x=Year,y=MeadVol, linetype="IntGuide"), size=3,show.legend = F) +
   scale_linetype_manual(name="Guide1", values = c("IntGuide"="longdash"), breaks=c("IntGuide"), labels= c("Interim Guidelines Expire")) +
-  geom_text(aes(x=tInterGuideExpire, y=25, label="Interim Guidelines\nExpire"), angle = 0, size = 6, hjust="middle") +
+  #geom_text(aes(x=tInterGuideExpire, y=25, label="Interim Guidelines\nExpire"), angle = 0, size = 6, hjust="middle") +
   #Label the plot
   #geom_label(aes(x=2037, y=20, label="Steady Inflow (MAF/year)\n(Stress Test)", fontface="bold"), angle = 0, size = 7) +
   
@@ -919,7 +919,9 @@ ggsave("Fig4b-Recovery-MeadInflow.jpg",width = 12,
 # 4. Plot as area
 
 #Step 1. Build data frame
-cInflowScenRecover <- c(seq(7,14, by=0.05))*1e6
+nLowFlow <- 7
+
+cInflowScenRecover <- c(seq(nLowFlow,14, by=0.05))*1e6
 
 cElevations <- c(1025,1030,1045,1050,1075,1090)
 
@@ -949,7 +951,7 @@ dfReleaseToStabilize$Release <- ifelse(dfReleaseToStabilize$ReleaseToStabilize >
                                        dfReleaseToStabilize$ReleaseToStabilize)
 
 #Label and position the traces
-dfTraceLabels <- data.frame(Elevation=1090,Inflow = c(8.5,7.5,8.5), Release = c(9.6-0.3/2, 8.3, 5), Label=c("Mandatory conservation", "Additional\nconservation", "Release"))
+dfTraceLabels <- data.frame(Elevation=c(rep(1090,3),rep(1025,3)),Inflow = c(8.5,7.5,8.5,8,7.4,8.5), Release = c(9.6-0.3/2, 8.3, 5,9.6-1.35/2,7.7,5), Label=rep(c("Mandatory conservation", "Additional\nconservation", "Release"),2))
 
 #Calculate the additional conservation needed beyond DCP target
 dfReleaseToStabilize$AdditionalConservation <- dfReleaseToStabilize$DeliveryTarget  - dfReleaseToStabilize$MandatoryConservationTarget - dfReleaseToStabilize$Release
@@ -968,9 +970,11 @@ ggplot(data = dfReleaseToStabilizeMelt %>% filter(Elevation %in% c("1025","1090"
   geom_area(aes(x=Inflow/1e6, y=value/1e6, fill=variable)) +
 
   #Overplot a line for the line of releases to stabilize inflow
-  geom_line(data=dfReleaseToStabilize %>% filter(Elevation %in% c("1025","1090")), aes(x=Inflow/1e6, y = ReleaseToStabilize/1e6), linetype = "longdash", size = 2) +
+  geom_line(data=dfReleaseToStabilize %>% filter(Elevation %in% c("1025","1090")), aes(x=Inflow/1e6, y = ReleaseToStabilize/1e6), linetype = "longdash", size = 2, color = pBlues[8]) +
+  #Labelthe  line of release to stabilize reservoir level
+  geom_text(aes(x=8.5, y=7.8, label="Release to stabilize reservoir level"), size=5, color=pBlues[8], angle = -19) +
   #label the traces
-  geom_text(data=dfTraceLabels, aes(x = Inflow, y = Release, label = Label), size=6) +
+  geom_text(data=dfTraceLabels, aes(x = Inflow, y = Release, label = Label), size=5) +
     
   facet_wrap( ~ Elevation) +
   
@@ -978,7 +982,7 @@ ggplot(data = dfReleaseToStabilizeMelt %>% filter(Elevation %in% c("1025","1090"
   #xlim(7,10) +
   
   #Reverse x-axis so go from High to Low
-  scale_x_reverse(limits = c(10,7)) +
+  scale_x_reverse(limits = c(10,nLowFlow)) +
   scale_y_continuous(limits = c(0,10), breaks = seq(0,10,by=2), sec.axis = sec_axis(~. +0, name = "", breaks = dfReleaseLabels$Release/1e6, labels = dfReleaseLabels$Label)) +
   scale_fill_manual(values = c("Red","Pink", pBlues[4]), labels = c("Mandatory conservation\ntarget", "Additional conservation", "Release")) +
   
