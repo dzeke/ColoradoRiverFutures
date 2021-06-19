@@ -765,7 +765,8 @@ dfTimeResults$Elevation <- interpNA(xi = dfTimeResults$Storage,y=dfMeadElevStor$
 ### Recovery case #1: From 2025 and elevation 1,025 feet.
 
 #For each recovery case, define the key start year, start Mead storage, and inflow scenarios to use
-dfRecoveryCases <- data.frame(startYear = c(2021, 2021),
+nStartYearRecovery <- 0
+dfRecoveryCases <- data.frame(startYear = rep(nStartYearRecovery,2),
                               sMeadStartStorage = c(6.0*1e6, as.numeric(dfInflowSimulations %>% filter(Year == 2030, Inflow == 9*1e6) %>% select(Storage))),
                               inflowsToUse = I(list(c(8.65, 9, 10), c(9, 10,11,12))),
                               Label = c("Recover from 1,025 ft", "Recover from 1,150 ft"))
@@ -816,13 +817,17 @@ for (iRecovery in 1:nrow(dfRecoveryCases)){
 dfRecoverySimulations <- dfRecoverySimulations[2:nrow(dfRecoverySimulations),]
 
 # Plot up storage over time for different inflow traces.
-dfRecoveryTimeResults <- dfRecoverySimulations  %>% filter(Year <= 2040)  
+dfRecoveryTimeResults <- dfRecoverySimulations  %>% filter(Year <= 2045)  
 
 #Specify the interval in years to show line labels
 nYearInterval <- 5
 
-# Select even rows for plotting recovery labels
-dfRecoveryTimeResultsInterval <- dfRecoveryTimeResults %>% filter(Year %in% seq(min(dfRecoveryCases$startYear) + nYearInterval,max(dfRecoveryTimeResults$Year) - 1, by=nYearInterval))
+# Select specifc rows for plotting recovery labels
+#First case is on the interval
+dfRecoveryTimeResultsInterval <- dfRecoveryTimeResults %>% filter(Case == as.character(dfRecoveryCases$Label[1]) , Year %in% seq(min(dfRecoveryCases$startYear) + nYearInterval,max(dfRecoveryTimeResults$Year) - 1, by=nYearInterval))
+dfTemp <- dfRecoveryTimeResults %>% filter(Case == as.character(dfRecoveryCases$Label[2]) , Year %in% seq(min(dfRecoveryCases$startYear) - 2 + nYearInterval,max(dfRecoveryTimeResults$Year) - 1, by=nYearInterval))
+#Second case is one year earlier
+dfRecoveryTimeResultsInterval <- rbind(dfRecoveryTimeResultsInterval, dfTemp )
 
 #Filter out interger inflows to clean up plot compared to just inflows
 dfTimeResultsInteger <- dfTimeResults %>% filter(Inflow %in% seq(7*1e6,10*1e6, by=1e6))
@@ -839,8 +844,9 @@ cRecoveryColors <- c(pBlues[5], pBlues[7])
 #Now the recovery plot: Storage versus time with different Steady Mead inflow traces. Different DCP zones. And a vertical line showing the end of the Interim Guidelines
 #Legend does not show, probably because color is not in aes#
 
-xMax <- 2040
+xMax <- 15
 dfPolyAll$Year2 <- ifelse(dfPolyAll$Year == 2045, xMax, dfPolyAll$Year )
+dfPolyAll$Year2 <- ifelse(dfPolyAll$Year2 == 2021, nStartYearRecovery, dfPolyAll$Year2)
 
 
 ggplot() +
@@ -866,8 +872,8 @@ ggplot() +
   
   #Label the constant inflow contours
   #Label inflow traces excluding non-integer traces
-  geom_label(data=dfTimeResultsInterval %>% filter(Inflow == 8*1e6, Year <= 2025), aes( x = Year, y = Storage/1e6, label = Inflow/1e6, fontface="bold"),  color = cRecoveryColors[1], size=5, angle = 0) + 
-  geom_label(data=dfTimeResultsInterval %>% filter(Inflow == 9*1e6, Year < 2030), aes( x = Year, y = Storage/1e6, label = Inflow/1e6, fontface="bold"),  color = cRecoveryColors[2], size=5, angle = 0) + 
+  #geom_label(data=dfTimeResultsInterval %>% filter(Inflow == 8*1e6, Year <= 2025), aes( x = Year, y = Storage/1e6, label = Inflow/1e6, fontface="bold"),  color = cRecoveryColors[1], size=5, angle = 0) + 
+  #geom_label(data=dfTimeResultsInterval %>% filter(Inflow == 9*1e6, Year < 2030), aes( x = Year, y = Storage/1e6, label = Inflow/1e6, fontface="bold"),  color = cRecoveryColors[2], size=5, angle = 0) + 
   
    #Label the recovery case 1 traces
   geom_label(data=dfRecoveryTimeResultsInterval %>% filter(Year > startYear, as.character(Case) == dfRecoveryCases$Label[1], !(Inflow/1e6 == 9 & Year == 2035)), aes( x = Year, y = Storage/1e6, label = round(Inflow/1e6, digits = 1), fontface="bold"), color=cRecoveryColors[1], size=5, angle = 0) + 
@@ -876,12 +882,12 @@ ggplot() +
   
   
   #Label the polygons
-  geom_label(data=dfPolyLabel, aes(x = 2037, y = MidMead/1e6, label = Label, fontface="bold", fill=as.factor(dfPolyLabel$DumVal)), size=4, angle = 0) + 
+  geom_label(data=dfPolyLabel, aes(x = xMax-4, y = MidMead/1e6, label = Label, fontface="bold", fill=as.factor(dfPolyLabel$DumVal)), size=4, angle = 0) + 
   
   #Y-axis: Active storage on left, Elevation with labels on right 
   scale_y_continuous(breaks = seq(0,tMaxVol,by=5), labels = seq(0,tMaxVol,by=5), limits = c(0, tMaxVol), 
                      sec.axis = sec_axis(~. +0, name = "Mead Level (feet)", breaks = dfMeadPoolsPlot$stor_maf, labels = dfMeadPoolsPlot$labelSecY)) +
-  scale_x_continuous(limits = c(2020,xMax)) +
+  scale_x_continuous(limits = c(nStartYearRecovery,xMax)) +
   
   #limits = c(0,as.numeric(dfMaxStor %>% filter(Reservoir %in% c("Mead")) %>% select(Volume))),
   #scale_y_continuous(breaks = seq(0,50,by=10), labels = seq(0,50,by=10), limits = c(0, 50)) +
@@ -894,7 +900,7 @@ ggplot() +
   
   theme_bw() +
   
-  labs(x="", y="Mead Active Storage (MAF)") +
+  labs(x="Year", y="Mead Active Storage (MAF)") +
   #theme(text = element_text(size=20), legend.title=element_blank(), legend.text=element_text(size=18),
   #      legend.position = c(0.8,0.7))
   theme(text = element_text(size=20), legend.text=element_text(size=18)) #,
