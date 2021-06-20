@@ -1,5 +1,5 @@
 ---
-title: "Intentionally Created Surplus for Lake Mead: Current Accounts and Observations"
+title: "Voluntary Conservation Program for Lake Mead: Current Accounts and Observations"
 author: "David E. Rosenberg"
 date: "June 10, 2021"
 output: pdf_document
@@ -11,28 +11,28 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Description
 
-This is an R Markdown document. The following plots show the current status of the Intentionally Created Surplus (ICS) program for Lake Mead. This program is defined by the 2007 Interim Guidelines and ammended by the 2019 Lower Basin Drought Contingency Plan (DCP). The ICS program allows states to voluntarily conserve water, store the water in Lake Mead, get credit, and withdraw the conserved water at a future date under certain restrictions. The DCP mandates certain volumes of conservation (DCP targets) that increase as Lake Mead level drops. Those targets can be met by converting previously conserved water from an ICS account or undertaking new conservation efforts.
+This is an R Markdown document. The following plots show the current status of the voluntar, credited conservation program for Lake Mead. This program is defined by the 2007 Interim Guidelines and ammended by a 2019 agreement that adds mandatory conservation targets. In the voluntary conservation programs, states conserve water, store the water in Lake Mead, get credit, and withdraw the conserved water at a future date under certain restrictions. The mandatory conservation targets increase as Lake Mead level drops. Those targets can be met by converting previously conserved water in a conservation account or undertaking new conservation efforts.
 
-1. A stacked bar chart compares ICS account balances by state and year. These balances are compared to the overall and individual state max balances allowed by the 2007 Interim Guidelines and 2019 Drought Contigency Plan (DCP). 
+1. A stacked bar chart compares voluntary conservation account balances by state and year. These balances are compared to the overall and individual state max balances allowed by the 2007 Interim Guidelines and 2019 Drought Contigency Plan (DCP). 
 
-2. A stacked bar chart compares annual ICS transactions by state. Deposits are shown as positive and withdraws as negative. These deposits and withdrawals are compared to the maximum allowed amounts.
+2. A stacked bar chart compares annual voluntary conservation efforts by state. Deposits are shown as positive and withdraws as negative. These deposits and withdrawals are compared to the maximum allowed amounts.
 
-3. A bar plot shows the the number of years water in the ICS account can be used to make the state's DCP target before the ICS account is depleted for three lake levels. This ratio is the ICS account balance divided by the DCP target. This ratio assumes there is no new ICS transactions during that time. The number of years fall as Lake Mead level drops and DCP targets increase. 
+3. A bar plot shows the the number of years water in the conservation account can be used to make the state's mandatory target before the conservation account is depleted for three lake levels. This ratio is the conservation account balance divided by the mandatory target. This ratio assumes there is no new voluntary conservation or withdraws during that time. The number of years fall as Lake Mead level drops and mandatory targets increase. 
 
-4. A bar plot shows the ratio of the ICS withdrawal limit to the DCP target at three different Lake Mead water levels. If ICS withdrawal limits are enforced, this ratio represents the fraction of the DCP target the state could make from it's ICS account each year. This ratio assumes there is sufficient water in the ICS account.
+4. A bar plot shows the ratio of the conservation account withdrawal limit to the mandatory conservation target at three different Lake Mead water levels. If account withdrawal limits are enforced, this ratio represents the fraction of the mandatory conservation target the state could make from it's conservation account each year. This ratio assumes there is sufficient water in the conservation account.
 
-5. A bar plot shows the ratio of the ICS deposit limit to the required DCP target at three different Lake Mead water levels. If deposit limits are enforced, this ratio shows how well a state can keep up year-to-year with its required DCP targets by continuing to conserve, add that water to it's ICS account, then transfer and use the ICS water to meet it's required DCP target. Conserving, adding to one's ICS account, and transfering to make a DCP target is preferred to a direct DCP target. This approach is preferred because water conserved **this** year and credited to the ICS account can be used to meet **next** year's DCP target. Should Lake Mead level rise during the year, the state retains access to its ICS water whereas a direct DCP target is lost. 
+5. A bar plot shows the ratio of the conservation account deposit limit to the required mandatory conservation target at three different Lake Mead water levels. If deposit limits are enforced, this ratio shows how well a state can keep up year-to-year with its required mandatory conservation targets by continuing to conserve, add that water to it's conservation account, then transfer and use the conservation account water to meet it's mandatory conservation target. Conserving, adding to one's conservation account, and transfering to meet a mandatory conservation target is preferred to a new conservation. This approach is preferred because water conserved **this** year and credited to the conservation account can be used to meet this or **next** year's mandatory target. Should Lake Mead level rise during the year, the state retains access to its conserved water whereas new conservation is lost. 
 
-6. A bar plot shows each state's historical ability to meet DCP targets at three different Lake Mead water levels. Historical ability is the ratio of the largest annual ICS deposit on record to the DCP target. The historical ability shows whether a state has historically conserved at the volume to meet it's DCP target. States below 100% have never before conserved at the level required by the DCP. They do not yet have a track record for water conservation.
+6. A bar plot shows each state's historical ability to meet mandatory conservation targets at three different Lake Mead water levels. Historical ability is the ratio of the largest annual deposit to a conservation account on record to the mandatory conservation target. The historical ability shows whether a state has historically conserved at the volume to meet it's mandatory conservation target. States below 100% have never before conserved at the level required by the DCP. They do not yet have a track record for water conservation.
 
 Data from USBR annual accounting reports: https://www.usbr.gov/lc/region/g4000/wtracct.html. Note most recent data is for 2020. 
 
 ## Observations
 
-1. The Intetionally Created Surplus program for Lake Mead is popular and well used (Figures 1 and 2).
+1. The water conservation accounting program for Lake Mead is popular and well used (Figures 1 and 2).
 2. As of 2020, Arizona, California, and Nevada have saved and deposited ~2.8 million acre feet (MAF) -- above the current 2.7 MAF maximum limit (Figure 1).
-3. The states should raise their individual and combined ICS limits to more transparently represent situation with account balances larger than the limits. At the same time, the limit on ICS balances must stay below Lake Mead's physical active storage so conserved water is recoverable.
-4. Arizona has yet to conserve water at the annual volumes required for it's lower DCP targets (Figures 3, 4, 5, 6). In contrast, California and Nevada already have a track record of conserving the annual water volumes specified in the DCP aggreement.
+3. The states should raise their individual and combined conservation account limits to more transparently represent situation with account balances larger than the limits. At the same time, the limit on conservation account balances must stay below Lake Mead's physical active storage so conserved water is recoverable.
+4. Arizona has yet to conserve water at the annual volumes required for it's mandatory conservation targets (Figures 3, 4, 5, 6). In contrast, California and Nevada already have a track record of conserving at the mandatory conservation targets.
 5. Collectively, the states conserved 42,000 acre-feet less in 2020 than 2019. As the 20-year drown continues and the reservoir level draws down, each state decreased rather than increased it's conservation efforts.  
 
 ## Requested Citation
@@ -164,7 +164,7 @@ dfLakePowellNatural <- data.frame (LakePowellFlow = c(16, 5, 5, 10.3, 10.1, 9.7,
 # 
 # mean(dfLakePowellNatural$LeeFerryFlow)
 
-print("ICS balance as fraction of Mead storage")
+print("Voluntary conservation account balance as fraction of Mead storage")
 print(sprintf("%.1f%%",nCurrICSTotal$Total/nCurrMeadStorage*100))
 
 print("Percent of Upper Colorado River Basin of entire continential US")
@@ -189,7 +189,7 @@ dfMaxBalanceCum$StateAsChar[3] <- "Total/Arizona"
 
 ```
 
-# Figure 1. Account balances
+# Figure 1. Lake Mead conservation account balances
 ```{r ICSFig1, echo=FALSE, warning=FALSE, message=FALSE}
 
 ggplot() +
@@ -215,14 +215,14 @@ ggplot() +
   
   theme_bw() +
   
-  labs(x="", y="Intentionally Created Surplus\nAccount Balance\n(MAF)") +
+  labs(x="", y="Account Balance\n(MAF)") +
   theme(text = element_text(size=20),  legend.title = element_blank(), 
           legend.text=element_text(size=14),
           legend.position= c(0.2,0.75))
 
 ```
 
-# Figure 2. Deposits and Withdrawals
+# Figure 2. Lake Mead conservation account deposits and withdrawals
 ```{r ICSFig2, echo=FALSE, warning=FALSE, message=FALSE}
   
 
@@ -262,7 +262,7 @@ ggplot() +
 
 ```
 
-# Figure 3. Years 2020 ICS balance can fund an ongoing DCP targets. Dashed red line indicates 2 years.
+# Figure 3. Years 2020 conservation account balance can fund mandatory conservaton targets. Dashed red line indicates 2 years.
 ```{r ICSFig3, echo=FALSE, warning=FALSE, message=FALSE}
 
 
@@ -290,7 +290,7 @@ ggplot(data=dfICStoDCPMelt %>% filter((ElevationText == "1025 feet") | (Elevatio
 
   theme_bw() +
   
-  labs(x="", y="Years 2019 ICS balance can\nfund DCP targets") +
+  labs(x="", y="Years 2020 conservation account\nbalance can fund\nmandatory targets") +
   theme(text = element_text(size=18),  legend.title = element_blank(),
   axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5),
   legend.text=element_text(size=18),
@@ -298,7 +298,7 @@ ggplot(data=dfICStoDCPMelt %>% filter((ElevationText == "1025 feet") | (Elevatio
 
 ```
 
-# Figure 4. Ratio of ICS max withdrawal limit to DCP target. Dashed red line indicates max withdraw limit equals DCP target.
+# Figure 4. Ratio of conservation account max withdrawal limit to mandatory target. Dashed red line indicates max withdraw limit equals mandatory target.
 
 ```{r ICSFig4, echo=FALSE, warning=FALSE, message=FALSE}
 
@@ -327,14 +327,14 @@ ggplot(data=dfICStoDCPMeltMaxWithdrawal %>% filter((ElevationText == "1025 feet"
   
   theme_bw() +
   
-  labs(x="", y="Ratio of ICS max withdrawal\nto DCP target") +
+  labs(x="", y="Ratio of max withdrawal from conservation\naccount to mandatory target") +
   theme(text = element_text(size=18),  legend.title = element_blank(), legend.text=element_text(size=18),
         legend.position= "none")
 
 
 ```
 
-# Figure 5. Ratio of ICS max deposit to DCP target. Dashed red line (100%) indicates max deposit equals DCP target.
+# Figure 5. Ratio of max conservation account deposit to mandatory target. Dashed red line (100%) indicates max deposit equals mandatory target.
 ```{r ICSFig5, echo=FALSE, warning=FALSE, message=FALSE}
 
 
@@ -363,15 +363,15 @@ ggplot(data=dfICStoDCPMeltMaxDeposit %>% filter((ElevationText == "1025 feet") |
   
   theme_bw() +
   
-  labs(x="", y="Ratio of ICS max deposit\nto DCP target") +
+  labs(x="", y="Ratio of conservation account max deposit\nto mandatory target") +
   theme(text = element_text(size=18),  legend.title = element_blank(), legend.text=element_text(size=18),
         legend.position= "none")
 
 
 ```
 
-# Figure 6. Ratio of largest historical ICS deposit to DCP target
-## States less than 100% (dashed red line) have yet to conserve at the annual level required by the DCP.
+# Figure 6. Ratio of largest historical conservation account deposit to mandatory target
+## States less than 100% (dashed red line) have yet to conserve at the mandatory target.
 ```{r ICSFig6, echo=FALSE, warning=FALSE, message=FALSE}
 
 
@@ -419,7 +419,7 @@ ggplot(data=dfICStoDCPRatioMelt ) +
   
   theme_bw() +
   
-  labs(x="", y="Conservation History\n(ratio of largest historical ICS deposit\nto DCP target)") +
+  labs(x="", y="Conservation History\n(ratio of largest historical conservation account\ndeposit to mandatory target)") +
   theme(text = element_text(size=16),  legend.title = element_blank(),
         axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5),
         legend.text=element_text(size=16),
