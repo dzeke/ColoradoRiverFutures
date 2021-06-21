@@ -861,9 +861,12 @@ ggplot() +
     
   #Scales
   scale_x_date(limits= c(as.Date("1990-01-01"), as.Date("2026-01-01")), sec.axis = sec_axis(~. +0, name = "", breaks = dfKeyDates$Date, labels = as.character(dfKeyDates$Label))) +
-  scale_y_continuous(limits = c(0,NA)) +
+  #scale_y_continuous(limits = c(0,NA)) +
   # secondary axis is not working
   # scale_y_continuous(limits = c(0,NA), sec_axis(~. +0, name = "", breaks = dfKeyVolumes$Volume, labels = dfKeyVolumes$Volume)) +
+  #Secondary axis as percent
+  scale_y_continuous(limits = c(0,NA), sec.axis = sec_axis(~ . /nCapacityCombined*100, name = "Percent of Combined Capacity", breaks = seq(0,100,by=25), labels = sprintf("%d%%", seq(0,100,by=25)))) +
+  
   scale_fill_manual(values=c(pReds[3], pBlues[5], pBlues[7])) +
   
   #    scale_y_continuous(breaks = c(0,5.98,9.6,12.2,dfMaxStor[2,2]),labels=c(0,5.98,9.6,12.2,dfMaxStor[2,2]),  sec.axis = sec_axis(~. +0, name = "Mead Level (feet)", breaks = c(0,5.98,9.6,12.2,dfMaxStor[2,2]), labels = c(895,1025,1075,1105,1218.8))) +
