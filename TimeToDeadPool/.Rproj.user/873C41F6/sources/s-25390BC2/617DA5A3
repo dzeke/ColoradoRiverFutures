@@ -2,18 +2,18 @@
     "collab_server" : "",
     "contents" : "",
     "created" : 1564772192092.000,
-    "dirty" : false,
+    "dirty" : true,
     "encoding" : "UTF-8",
     "folds" : "",
     "hash" : "0",
     "id" : "617DA5A3",
     "lastKnownWriteTime" : 1624082821,
-    "last_content_update" : 1624082821027,
+    "last_content_update" : 1624298746580,
     "path" : "C:/Rosenberg/Work/USU/Research/ColoradoRiver/RCode/ColoradoRiverFutures/TimeToDeadPool/TimeToDeadPool.R",
     "project_path" : "TimeToDeadPool.R",
     "properties" : {
-        "cursorPosition" : "742,33",
-        "scrollLine" : "735"
+        "cursorPosition" : "838,36",
+        "scrollLine" : "834"
     },
     "relative_order" : 1,
     "source_on_save" : false,

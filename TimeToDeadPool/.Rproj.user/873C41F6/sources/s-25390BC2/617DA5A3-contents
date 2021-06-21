@@ -912,7 +912,7 @@ ggsave("Fig4b-Recovery-MeadInflow.jpg",width = 12,
 
 
 ####################################################
-##### Lake Mead recovery by storage level and inflow
+##### Release to stabilize reservoir storage
 #####
 ##### A stacked area plot of release vs inflow to keep reservoir storage steady
 ##### also shows the target, mandatory conservation target, additional conservation
