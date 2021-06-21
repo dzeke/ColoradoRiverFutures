@@ -1,0 +1,29 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1624312994029.000,
+    "dirty" : false,
+    "encoding" : "",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "8D6234C3",
+    "lastKnownWriteTime" : 8026661835132248692,
+    "last_content_update" : 1624312994029,
+    "path" : null,
+    "project_path" : null,
+    "properties" : {
+        "cacheKey" : "111F53E6",
+        "caption" : "dfEndArrows",
+        "contentUrl" : "grid_resource/gridviewer.html?env=&obj=dfEndArrows&cache_key=111F53E6",
+        "displayedObservations" : 3,
+        "environment" : "",
+        "object" : "dfEndArrows",
+        "preview" : 0,
+        "totalObservations" : 3,
+        "variables" : 8
+    },
+    "relative_order" : 7,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_dataframe"
+}

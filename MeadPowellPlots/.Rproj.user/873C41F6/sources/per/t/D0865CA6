@@ -1,0 +1,29 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1624305591042.000,
+    "dirty" : false,
+    "encoding" : "",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "D0865CA6",
+    "lastKnownWriteTime" : 8017342125385807465,
+    "last_content_update" : 1624305591042,
+    "path" : null,
+    "project_path" : null,
+    "properties" : {
+        "cacheKey" : "3D4DEE99",
+        "caption" : "dfJointStorageStackMelt",
+        "contentUrl" : "grid_resource/gridviewer.html?env=&obj=dfJointStorageStackMelt&cache_key=3D4DEE99",
+        "displayedObservations" : 3310,
+        "environment" : "",
+        "object" : "dfJointStorageStackMelt",
+        "preview" : 0,
+        "totalObservations" : 3310,
+        "variables" : 5
+    },
+    "relative_order" : 4,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_dataframe"
+}

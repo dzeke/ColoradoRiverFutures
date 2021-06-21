@@ -77,6 +77,15 @@ if (!require(ggrepel)) {
 
 
 
+# New function interpNA to return NAs for values outside interpolation range (from https://stackoverflow.com/questions/47295879/using-interp1-in-r)
+interpNA <- function(x, y, xi = x, ...) {
+  yi <- rep(NA, length(xi));
+  sel <- which(xi >= range(x)[1] & xi <= range(x)[2]);
+  yi[sel] <- interp1(x = x, y = y, xi = xi[sel], ...);
+  return(yi);
+}
+
+
 
 ###This reservoir data comes from CRSS. It was exported to Excel.
 
@@ -99,6 +108,7 @@ dfReservedFlood$month_num <- month(as.POSIXlt(dfReservedFlood$Month, format="%Y-
 #    https://www.usbr.gov/rsvrWater/HistoricalApp.html
 
 sPowellHistoricalFile <- 'PowellDataUSBRJan2019.csv'
+sPowellHistoricalFile <- 'PowellDataUSBRMay2021.csv'
 
 # File name to read in Mead end of month reservoir level in feet - cross tabulated by year (1st column) and month (subsequent columns)
 #    LAKE MEAD AT HOOVER DAM, END OF MONTH ELEVATION (FEET), Lower COlorado River Operations, U.S. Buruea of Reclamation
@@ -129,7 +139,7 @@ dfMeadHist$Stor <- interp1(xi = dfMeadHist$value,y=dfMeadElevStor$`Live Storage 
 
 #Interpolate Powell storage from level to check
 dtStart <- as.Date("1963-12-22")
-dfPowellHist <- dfPowellHistorical[15:676,] #%>% filter(dfPowellHistorical$Date >= dtStart) # I don't like this hard coding but don't know a way around
+dfPowellHist <- dfPowellHistorical[15:705,] #%>% filter(dfPowellHistorical$Date >= dtStart) # I don't like this hard coding but don't know a way around
 #Convert date text to date value
 dfPowellHist$DateAsValueError <- as.Date(dfPowellHist$Date,"%d-%b-%y")
 #Apparently R breaks the century at an odd place
@@ -747,7 +757,11 @@ ggplot() +
 
 ggsave("PowellStorageTime.png", width=9, height = 6.5, units="in")
 
-#### POWELL AND MEAD STORAGE OVER TIME
+#################################################
+#### COMBINED POWELL AND MEAD STORAGE OVER TIME
+#################################################
+
+# Combined, Powell, and Mead on one plot
 
 ggplot() +
   #Powell storage
@@ -771,6 +785,100 @@ ggplot() +
   labs(x="", y="Active Storage (MAF)", color = "Reservoir") +
   theme(text = element_text(size=20), legend.title=element_blank(), legend.text=element_text(size=18))
   #theme(text = element_text(size=20), legend.text=element_text(size=16)
+
+
+### Combined plot for proposal
+
+
+## Calculate the Protection elevation
+dfProtectLevel <- data.frame(Reservoir = c("Powell", "Mead"), Elevation = c(3525, 1020))
+#Interpolate storage from elevation
+dfProtectLevel$Volume[1] <- interpNA(xi = dfProtectLevel$Elevation[1], x= dfPowellElevStor$`Elevation (ft)`, y=dfPowellElevStor$`Live Storage (ac-ft)`)
+dfProtectLevel$Volume[2] <- interpNA(xi = dfProtectLevel$Elevation[2], x= dfMeadElevStor$`Elevation (ft)`, y=dfMeadElevStor$`Live Storage (ac-ft)`)
+
+nProtectCombined <- sum(dfProtectLevel$Volume)/1e6
+nCapacityCombined <- (dfMaxStor[1,2] + dfMaxStor[2,2])
+nLastVolumeCombined <- dfJointStorage$PowellStorage[629] + dfJointStorage$MeadStorage[629]
+
+#Data frame of key dates
+dfKeyDates <- data.frame(Date = as.Date(c("2007-01-01", "2026-01-01")), Label = c("Interim\nGuidelines", "Guidelines\nExpire"))
+#Data frame of key elevations
+dfKeyVolumes <- data.frame(Volume = c(nProtectCombined, nCapacityCombined), Label = c("Protect","Combined\nCapacities"))
+#Data frame of key traces
+dfKeyTraceLabels <- data.frame(Label = c("Protect Mindset", "Available Water", "Deficit Mindset"),
+                                Volume = c(nProtectCombined/2, 16, 40), xPosition = rep(2007 + (2021 - 2007)/2,3))
+#Data frame of end arrows
+nArrowOffset <- 4
+dfEndArrows <- data.frame(Label = c("Recover?", "Stabilize?", "Draw down?"), Ystart = rep(nLastVolumeCombined,3), 
+                            Xstart = as.Date(rep("2022-01-01",3)), Xend = as.Date(rep("2025-01-01",3)),
+                            Yend = c(nLastVolumeCombined + nArrowOffset, nLastVolumeCombined, nLastVolumeCombined - nArrowOffset),
+                            Angle = c(20,0,-20), Yoffset = c(0.1, 0, -0.1))
+#Calculate the mid date
+dfEndArrows$MidDate <- dfEndArrows$Xstart + floor((dfEndArrows$Xend - dfEndArrows$Xstart)/2)
+
+#New data frame for area
+dfJointStorageStack <- dfJointStorage
+dfJointStorageStack$Protect <- nProtectCombined
+dfJointStorageStack$Volume <- dfJointStorage$PowellStorage + dfJointStorage$MeadStorage - dfJointStorageStack$Protect
+dfJointStorageStack$Capacity <- nCapacityCombined - dfJointStorageStack$Volume - dfJointStorageStack$Protect
+
+#Melt the data
+dfJointStorageStackMelt <- melt(dfJointStorageStack, id.vars = c("DateAsValue"), measure.vars = c("Protect","Volume", "Capacity"))
+#Specify the order of the variables
+dfJointStorageStackMelt$variable <- factor(dfJointStorageStackMelt$variable, levels=c("Capacity","Volume", "Protect"))
+
+#Get the color palettes
+#Get the blue color bar
+pBlues <- brewer.pal(9,"Blues")
+pReds <- brewer.pal(9,"Reds")
+
+ggplot() +
+  #Combined Storage
+  #As area
+  geom_area(data=dfJointStorageStackMelt, aes(x=DateAsValue, y=value, fill=variable, group=variable)) +
+  #As line
+  geom_line(data=dfJointStorage,aes(x=DateAsValue,y=MeadStorage+PowellStorage, color="Combined"), size=2, color = "Black") +
+  #geom_area(data=dfPlotData,aes(x=month,y=stor_maf, fill = variable), position='stack') +
+  
+  #lines for max capacity and protect elevation
+  geom_hline(data=dfKeyVolumes, aes(yintercept = Volume), linetype="longdash", size=1) +
+  #lines for Interim Guidelines and Expiry
+  geom_vline(data=dfKeyDates, aes(xintercept = Date), linetype = "dashed", size=1, color = pReds[9]) +
+
+  #Labels for the areas
+  geom_text(data=dfKeyTraceLabels, aes(x=as.Date(sprintf("%d-01-01",xPosition)), y=Volume, label=as.character(Label)), size=6, fontface="bold") +
+
+  #Label what is next
+  #geom_text(data = dfEndArrows %>% filter(Label == "Recover?"), aes(x= MidDate, y = Ystart, label = "Recover?\nStabilize?\nDraw down?"), size = 5, color = "Black") +
+  #Arrow annotations at end of time
+  #geom_segment(data = dfEndArrows, aes(x=Xstart, xend=Xend, y=Ystart, yend = Yend), color = "Black", size = 1.5, arrow = arrow()) +
+  #Label the arrows
+  geom_text(data = dfEndArrows, aes(x = Xstart, y = (Ystart+Yend)/2 + Yoffset, label = Label, angle = Angle), size = 5, color = "Black", hjust = 0) +
+  
+  #geom_segment(aes(x=as.Date("2022-01-01"), xend=as.Date("2025-01-01"), y=12, yend = 14, colour = palBlues[7], arrow = arrow())) +
+  
+  
+    
+  #Scales
+  scale_x_date(limits= c(as.Date("1990-01-01"), as.Date("2026-01-01")), sec.axis = sec_axis(~. +0, name = "", breaks = dfKeyDates$Date, labels = as.character(dfKeyDates$Label))) +
+  scale_y_continuous(limits = c(0,NA)) +
+  # secondary axis is not working
+  # scale_y_continuous(limits = c(0,NA), sec_axis(~. +0, name = "", breaks = dfKeyVolumes$Volume, labels = dfKeyVolumes$Volume)) +
+  scale_fill_manual(values=c(pReds[3], pBlues[5], pBlues[7])) +
+  
+  #    scale_y_continuous(breaks = c(0,5.98,9.6,12.2,dfMaxStor[2,2]),labels=c(0,5.98,9.6,12.2,dfMaxStor[2,2]),  sec.axis = sec_axis(~. +0, name = "Mead Level (feet)", breaks = c(0,5.98,9.6,12.2,dfMaxStor[2,2]), labels = c(895,1025,1075,1105,1218.8))) +
+  #scale_x_discrete(breaks=cMonths, labels= cMonthsLabels) +
+  #scale_x_continuous(breaks=seq(1960,2020,by=10), labels= seq(1960,2020,by=10)) +
+  
+  
+  #scale_fill_manual(breaks=c(1:6),values = palBlues[2:7]) + #,labels = variable) + 
+  theme_bw() +
+  #coord_fixed() +
+  labs(x="", y="Combined Active Storage\n(MAF)", color = "") +
+  theme(text = element_text(size=20), legend.title=element_blank(), legend.position ="none")
+#theme(text = element_text(size=20), legend.text=element_text(size=16)
+
+
 
 
 
