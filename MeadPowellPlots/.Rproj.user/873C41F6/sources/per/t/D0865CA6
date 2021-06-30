@@ -12,15 +12,15 @@
     "path" : null,
     "project_path" : null,
     "properties" : {
-        "cacheKey" : "3D4DEE99",
+        "cacheKey" : "AC2CFBAB",
         "caption" : "dfJointStorageStackMelt",
-        "contentUrl" : "grid_resource/gridviewer.html?env=&obj=dfJointStorageStackMelt&cache_key=3D4DEE99",
-        "displayedObservations" : 3310,
+        "contentUrl" : "grid_resource/gridviewer.html?env=&obj=dfJointStorageStackMelt&cache_key=AC2CFBAB",
+        "displayedObservations" : "2073",
         "environment" : "",
         "object" : "dfJointStorageStackMelt",
-        "preview" : 0,
-        "totalObservations" : 3310,
-        "variables" : 5
+        "preview" : "0",
+        "totalObservations" : "2073",
+        "variables" : "3"
     },
     "relative_order" : 4,
     "source_on_save" : false,
