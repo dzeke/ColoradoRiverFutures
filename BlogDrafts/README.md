@@ -1,6 +1,6 @@
 # Blog Drafts
 
-Preprints of blogs in the series "Encouraging more Water Conservation in the Colorado River Basin" before they are published.
+Drafts and preprints of blogs in the series "Encouraging more Water Conservation in the Colorado River Basin" before they are published.
 
 Dr. David Rosenberg
 
@@ -14,5 +14,6 @@ Utah State University
 David E. Rosenberg (2019). "Blog Drafts". Utah State University. Logan, Utah. https://github.com/dzeke/ColoradoRiverFutures.
 
 ## Contents
-1. InvestInFarmWaterConservationToStopBuyAndDry.docx. Target: Inkstain.
-2. HowCanLowerBasinStatesMeetTheirDCPTargets.docx. Target: TBD
+1-InvestInFarmWaterConservationToStopBuyAndDry.docx. Appears on John Fleck's Inkstain at http://www.inkstain.net/fleck/2021/06/invest-in-farm-water-conservation-to-curtail-buy-and-dry/
+2-AddReservoirInflowAsNewCriteriaToRecoverLakeMead.docx. Target: TBD
+3-GiveLakeMeadManagersMoreFlexibilityToConserveToStateDrawdownToDeadPool.docx 
