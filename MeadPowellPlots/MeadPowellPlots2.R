@@ -789,6 +789,30 @@ ggplot() +
 
 ### Combined plot for proposal
 
+## Read in ICS account balance data
+sExcelFile <- 'IntentionallyCreatedSurplus-Summary.xlsx'
+dfICSBalance <- read_excel(sExcelFile, sheet = "Sheet1",  range = "B6:G17")
+nMaxYearICSData <- max(dfICSBalance$Year)
+#Duplicate the largest year and set the year to largest value plus 1
+dfICSBalance <- rbind(dfICSBalance, dfICSBalance %>% filter(Year == nMaxYearICSData) %>% mutate(Year = nMaxYearICSData+1))
+#Order by decreasing year
+dfICSBalance <- dfICSBalance[order(-dfICSBalance$Year),]
+#Turn time into a index by month. Year 1 = 1, Year 2 = 13
+dfICSBalance$MonthIndex <- 12*(dfICSBalance$Year - dfICSBalance$Year[nrow(dfICSBalance)]) + 12
+
+#Turn the ICS year into monthly
+dfICSmonths = expand.grid(Year = unique(dfICSBalance$Year), month = 1:12)
+dfICSmonths$MonthIndex <- 12*(dfICSmonths$Year - dfICSmonths$Year[nrow(dfICSmonths)]) + dfICSmonths$month
+#Filter off first year but keep last month
+dfICSmonths <- dfICSmonths %>% filter(dfICSmonths$MonthIndex >= 12)
+#Calculate a date
+dfICSmonths$Date <- as.Date(sprintf("%d-%d-01",dfICSmonths$Year, dfICSmonths$month))
+
+
+#Interpolate Lower Basin conservation account balances by Month
+dfICSmonths$LowerBasinConserve <- interp1(xi = dfICSmonths$MonthIndex, x=dfICSBalance$MonthIndex, y = dfICSBalance$Total, method="linear" )
+#Interpolate Mexico conservation account balance by Month
+dfICSmonths$MexicoConserve <- interp1(xi = dfICSmonths$MonthIndex, x=dfICSBalance$MonthIndex, y = dfICSBalance$Mexico, method="linear" )
 
 ## Calculate the Protection elevation
 dfProtectLevel <- data.frame(Reservoir = c("Powell", "Mead"), Elevation = c(3525, 1020))
@@ -805,8 +829,13 @@ dfKeyDates <- data.frame(Date = as.Date(c("2007-01-01", "2026-01-01")), Label = 
 #Data frame of key elevations
 dfKeyVolumes <- data.frame(Volume = c(nProtectCombined, nCapacityCombined), Label = c("Protect","Combined\nCapacities"))
 #Data frame of key traces
-dfKeyTraceLabels <- data.frame(Label = c("Protect Mindset", "Available Water", "Deficit Mindset"),
-                                Volume = c(nProtectCombined/2, 16, 40), xPosition = rep(2007 + (2021 - 2007)/2,3))
+dfKeyTraceLabels <- data.frame(Label = c("Protect Mindset", "Available\nWater", "LB + MX\nConserved\nWater", "Deficit Mindset"),
+                                Volume = c(nProtectCombined/2, 18, 25, 40), xPosition = rep(2007 + (nMaxYearICSData - 2007)/2,4),
+                                Size = c(6, 6, 5, 6))
+
+#Adjust the x positions of the Available water and LB + MX conserved water
+dfKeyTraceLabels$xPosition[2] <- 2004
+dfKeyTraceLabels$xPosition[3] <- (2026 + nMaxYearICSData - 0.25)/2
 #Data frame of end arrows
 nArrowOffset <- 4
 dfEndArrows <- data.frame(Label = c("Recover?", "Stabilize?", "Draw down?"), Ystart = rep(nLastVolumeCombined,3), 
@@ -816,16 +845,40 @@ dfEndArrows <- data.frame(Label = c("Recover?", "Stabilize?", "Draw down?"), Yst
 #Calculate the mid date
 dfEndArrows$MidDate <- dfEndArrows$Xstart + floor((dfEndArrows$Xend - dfEndArrows$Xstart)/2)
 
+#Left join the ICS data to the joint storage data to get the entire date range
+dfJointStorage <- left_join(dfJointStorage, dfICSmonths, by=c("DateAsValue" = "Date"))
+#Convert NAs to zeros
+dfJointStorage$Year <- year(dfJointStorage$DateAsValue)
+dfJointStorageClean <- dfJointStorage[,2:ncol(dfJointStorage)] %>% filter(Year <= nMaxYearICSData)
+dfJointStorageClean[is.na(dfJointStorageClean)] <- 0
+dfTemp <- dfJointStorage %>% filter(Year <= nMaxYearICSData) %>% select(DateAsValue)
+dfJointStorageClean$DateAsValue <- dfTemp$DateAsValue
+
+#Add rows for years 2022 to 2030 with all zeros
+dfYearsAdd <- data.frame(Year = seq(nMaxYearICSData+1, nMaxYearICSData + 10, by = 1))
+dfJointStorageZeros <- dfJointStorageClean[1,1:(ncol(dfJointStorageClean)-1)]
+dfJointStorageZeros[1, ] <- 0
+dfJointStorageZeros <- as.data.frame(lapply(dfJointStorageZeros,  rep, nrow(dfYearsAdd)))
+dfJointStorageZeros$Year <- dfYearsAdd$Year
+#Calculate a date
+dfJointStorageZeros$DateAsValue <- as.Date(sprintf("%.0f-01-01", dfJointStorageZeros$Year))
+#Bind to the Clean data frame
+dfJointStorageClean <- rbind(dfJointStorageClean, dfJointStorageZeros)
+
+
 #New data frame for area
-dfJointStorageStack <- dfJointStorage
+dfJointStorageStack <- dfJointStorageClean
+
 dfJointStorageStack$Protect <- nProtectCombined
-dfJointStorageStack$Volume <- dfJointStorage$PowellStorage + dfJointStorage$MeadStorage - dfJointStorageStack$Protect
-dfJointStorageStack$Capacity <- nCapacityCombined - dfJointStorageStack$Volume - dfJointStorageStack$Protect
+dfJointStorageStack$LowerBasin <- ifelse(dfJointStorageStack$Year <= nMaxYearICSData, dfJointStorageStack$LowerBasinConserve/1e6, 0)
+dfJointStorageStack$Mexico <- ifelse(dfJointStorageStack$Year <= nMaxYearICSData, dfJointStorageStack$MexicoConserve/1e6, 0)
+dfJointStorageStack$AvailableWater <- ifelse(dfJointStorageStack$Year <= nMaxYearICSData, dfJointStorageStack$PowellStorage + dfJointStorageStack$MeadStorage - dfJointStorageStack$Protect - dfJointStorageStack$LowerBasin - dfJointStorageStack$Mexico, 0)
+dfJointStorageStack$Capacity <- ifelse(dfJointStorageStack$Year <= nMaxYearICSData, nCapacityCombined - dfJointStorageStack$AvailableWater - dfJointStorageStack$Protect - dfJointStorageStack$LowerBasin - dfJointStorageStack$Mexico, 0)
 
 #Melt the data
-dfJointStorageStackMelt <- melt(dfJointStorageStack, id.vars = c("DateAsValue"), measure.vars = c("Protect","Volume", "Capacity"))
+dfJointStorageStackMelt <- melt(dfJointStorageStack, id.vars = c("DateAsValue"), measure.vars = c("Protect","LowerBasin", "Mexico", "AvailableWater", "Capacity"))
 #Specify the order of the variables
-dfJointStorageStackMelt$variable <- factor(dfJointStorageStackMelt$variable, levels=c("Capacity","Volume", "Protect"))
+dfJointStorageStackMelt$variable <- factor(dfJointStorageStackMelt$variable, levels=c("Capacity","AvailableWater", "Mexico", "LowerBasin", "Protect"))
 
 #Get the color palettes
 #Get the blue color bar
@@ -837,7 +890,7 @@ ggplot() +
   #As area
   geom_area(data=dfJointStorageStackMelt, aes(x=DateAsValue, y=value, fill=variable, group=variable)) +
   #As line
-  geom_line(data=dfJointStorage,aes(x=DateAsValue,y=MeadStorage+PowellStorage, color="Combined"), size=2, color = "Black") +
+  geom_line(data=dfJointStorageStack %>% filter(Year < nMaxYearICSData + 1),aes(x=DateAsValue,y=MeadStorage+PowellStorage, color="Combined"), size=2, color = "Black") +
   #geom_area(data=dfPlotData,aes(x=month,y=stor_maf, fill = variable), position='stack') +
   
   #lines for max capacity and protect elevation
@@ -846,14 +899,16 @@ ggplot() +
   geom_vline(data=dfKeyDates, aes(xintercept = Date), linetype = "dashed", size=1, color = pReds[9]) +
 
   #Labels for the areas
-  geom_text(data=dfKeyTraceLabels, aes(x=as.Date(sprintf("%d-01-01",xPosition)), y=Volume, label=as.character(Label)), size=6, fontface="bold") +
-
+  geom_text(data=dfKeyTraceLabels %>% filter(Label != "LB + MX\nConserved\nWater"), aes(x=as.Date(sprintf("%.0f-01-01",xPosition)), y=Volume, label=as.character(Label)), size = 6, fontface="bold") +
+  geom_text(data=dfKeyTraceLabels %>% filter(Label == "LB + MX\nConserved\nWater"), aes(x=as.Date(sprintf("%.0f-01-01",xPosition)), y=Volume, label=as.character(Label)), size = 4.5, fontface="bold", color = pBlues[5]) +
+  
+  
   #Label what is next
   #geom_text(data = dfEndArrows %>% filter(Label == "Recover?"), aes(x= MidDate, y = Ystart, label = "Recover?\nStabilize?\nDraw down?"), size = 5, color = "Black") +
   #Arrow annotations at end of time
   #geom_segment(data = dfEndArrows, aes(x=Xstart, xend=Xend, y=Ystart, yend = Yend), color = "Black", size = 1.5, arrow = arrow()) +
   #Label the arrows
-  geom_text(data = dfEndArrows, aes(x = Xstart, y = (Ystart+Yend)/2 + Yoffset, label = Label, angle = Angle), size = 5, color = "Black", hjust = 0) +
+  #geom_text(data = dfEndArrows, aes(x = Xstart, y = (Ystart+Yend)/2 + Yoffset, label = Label, angle = Angle), size = 5, color = "Black", hjust = 0) +
   
   #geom_segment(aes(x=as.Date("2022-01-01"), xend=as.Date("2025-01-01"), y=12, yend = 14, colour = palBlues[7], arrow = arrow())) +
   
@@ -867,7 +922,7 @@ ggplot() +
   #Secondary axis as percent
   scale_y_continuous(limits = c(0,NA), sec.axis = sec_axis(~ . /nCapacityCombined*100, name = "Percent of Combined Capacity", breaks = seq(0,100,by=25), labels = sprintf("%d%%", seq(0,100,by=25)))) +
   
-  scale_fill_manual(values=c(pReds[3], pBlues[5], pBlues[7])) +
+  scale_fill_manual(values=c(pReds[3], pBlues[3], pBlues[5], pBlues[5], pBlues[7])) +
   
   #    scale_y_continuous(breaks = c(0,5.98,9.6,12.2,dfMaxStor[2,2]),labels=c(0,5.98,9.6,12.2,dfMaxStor[2,2]),  sec.axis = sec_axis(~. +0, name = "Mead Level (feet)", breaks = c(0,5.98,9.6,12.2,dfMaxStor[2,2]), labels = c(895,1025,1075,1105,1218.8))) +
   #scale_x_discrete(breaks=cMonths, labels= cMonthsLabels) +
