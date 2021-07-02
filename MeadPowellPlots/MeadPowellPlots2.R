@@ -829,13 +829,13 @@ dfKeyDates <- data.frame(Date = as.Date(c("2007-01-01", "2026-01-01")), Label = 
 #Data frame of key elevations
 dfKeyVolumes <- data.frame(Volume = c(nProtectCombined, nCapacityCombined), Label = c("Protect","Combined\nCapacities"))
 #Data frame of key traces
-dfKeyTraceLabels <- data.frame(Label = c("Protect Mindset", "Available\nWater", "LB + MX\nConserved\nWater", "Deficit Mindset"),
+dfKeyTraceLabels <- data.frame(Label = c("Protect Mindset", "Available\nWater", "Lake Mead\nConservation\nAccounts", "Deficit Mindset"),
                                 Volume = c(nProtectCombined/2, 18, 25, 40), xPosition = rep(2007 + (nMaxYearICSData - 2007)/2,4),
                                 Size = c(6, 6, 5, 6))
 
 #Adjust the x positions of the Available water and LB + MX conserved water
-dfKeyTraceLabels$xPosition[2] <- 2004
-dfKeyTraceLabels$xPosition[3] <- (2026 + nMaxYearICSData - 0.25)/2
+dfKeyTraceLabels$xPosition[2] <- 2009
+dfKeyTraceLabels$xPosition[3] <- (2026 + nMaxYearICSData + 0.825 )/2
 #Data frame of end arrows
 nArrowOffset <- 4
 dfEndArrows <- data.frame(Label = c("Recover?", "Stabilize?", "Draw down?"), Ystart = rep(nLastVolumeCombined,3), 
@@ -899,14 +899,15 @@ ggplot() +
   geom_vline(data=dfKeyDates, aes(xintercept = Date), linetype = "dashed", size=1, color = pReds[9]) +
 
   #Labels for the areas
-  geom_text(data=dfKeyTraceLabels %>% filter(Label != "LB + MX\nConserved\nWater"), aes(x=as.Date(sprintf("%.0f-01-01",xPosition)), y=Volume, label=as.character(Label)), size = 6, fontface="bold") +
-  geom_text(data=dfKeyTraceLabels %>% filter(Label == "LB + MX\nConserved\nWater"), aes(x=as.Date(sprintf("%.0f-01-01",xPosition)), y=Volume, label=as.character(Label)), size = 4.5, fontface="bold", color = pBlues[5]) +
+  geom_text(data=dfKeyTraceLabels %>% filter(Label != dfKeyTraceLabels$Label[3]), aes(x=as.Date(sprintf("%.0f-01-01",xPosition)), y=Volume, label=as.character(Label)), size = 6, fontface="bold") +
+  geom_text(data=dfKeyTraceLabels %>% filter(Label == dfKeyTraceLabels$Label[3]), aes(x=as.Date(sprintf("%.0f-01-01",xPosition)), y=Volume, label=as.character(Label)), size = 4.5, fontface="bold", color = pBlues[5]) +
+ 
+  #Arrow Lake Mead conservation account label
+  geom_curve(data = dfKeyTraceLabels %>% filter(Label == dfKeyTraceLabels$Label[3]), aes(x=as.Date(sprintf("%.0f-01-01",xPosition)), xend = as.Date(sprintf("%.0f-02-01",nMaxYearICSData+1)), y=20.5, yend = 13), curvature = -0.5, color = pBlues[5], size = 1.0, arrow = arrow(length = unit(0.03, "npc"))) +
   
   
   #Label what is next
   #geom_text(data = dfEndArrows %>% filter(Label == "Recover?"), aes(x= MidDate, y = Ystart, label = "Recover?\nStabilize?\nDraw down?"), size = 5, color = "Black") +
-  #Arrow annotations at end of time
-  #geom_segment(data = dfEndArrows, aes(x=Xstart, xend=Xend, y=Ystart, yend = Yend), color = "Black", size = 1.5, arrow = arrow()) +
   #Label the arrows
   #geom_text(data = dfEndArrows, aes(x = Xstart, y = (Ystart+Yend)/2 + Yoffset, label = Label, angle = Angle), size = 5, color = "Black", hjust = 0) +
   
