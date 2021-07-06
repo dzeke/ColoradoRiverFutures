@@ -1,8 +1,6 @@
 # Combined Lake Powell-Lake Mead Plots
 
-Plots of combined Lake Powell-Lake Mead.
-
-Open the file **CombinedPowellMead.pdf** for results, directions to run, recommended citation, and all other information.
+Plots of combined Lake Powell-Lake Mead storage. The second figure is part of the request for contributions.
 
 Dr. David Rosenberg
 
@@ -12,8 +10,8 @@ July 6, 2021
 
 Utah State University
 
-## Recommended Citation
-David E. Rosenberg (2021), "Request for contributions: Pilot test available water accounting to encourage more water conservation in a combined Lake Powell-Lake Mead system" Utah State University. Logan, Utah. https://github.com/dzeke/ColoradoRiverFutures/tree/master/CombinedPowellMead.
+## Requested Citation
+David E. Rosenberg (2021), "Combined Lake Powell-Lake Mead plots." Utah State University. Logan, Utah. https://github.com/dzeke/ColoradoRiverFutures/tree/master/CombinedPowellMead.
 
 ## Contents
 1. CombinedPowellMead.R - the R code to run. Results shown in console.
