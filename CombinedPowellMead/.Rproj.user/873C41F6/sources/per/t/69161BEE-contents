@@ -15,7 +15,7 @@ This is an R Markdown document. This document shows plots of combined Lake Powel
 
 1. Line plot of the Lake Mead, Lake Powell, and combined storage over time. 
 
-2. A stacked area plot of combined storage capacity, combined storage, Lake Mead conservation account balances, and Protection levels over time. This plot is used in the request for contributions document.
+2. A stacked area plot shows combined storage of Lake Powell and Lake Mead over time in comparison to Lake Mead conservation account balances, combined protection volume, and 2026 expiration of Interim Guidelines. This plot is used in the request for contributions document.
 
 Data are from: 
 
@@ -242,7 +242,7 @@ ggplot() +
 
 ```
 
-# Figure 2. Combined storage, available water, and combined protect elevation
+# Figure 2. Combined storage of Lake Powell and Lake Mead over time in comparison to Lake Mead conservation account balances, combined protection volume, and 2026 expiration of Interim Guidelines.
 ```{r CombinedFig2, echo=FALSE, warning=FALSE, message=FALSE}
   
 
