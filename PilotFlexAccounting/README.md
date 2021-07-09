@@ -1,6 +1,6 @@
 # Pilot flex accounting to encourage more water conservation in a combined Lake Powell-Lake Mead system
 
-### [Quick link to Download](https://github.com/dzeke/ColoradoRiverFutures/raw/master/PilotFlexAccounting/PilotFlexAccounting-CombinedPowellMead.xlsx)
+### [Quick link to Download Pilot flex accounting tool](https://github.com/dzeke/ColoradoRiverFutures/raw/master/PilotFlexAccounting/PilotFlexAccounting-CombinedPowellMead.xlsx)
 
 This folder contains a pilot flex water accounting tool to encourage more water conservation in a combined Lake Powell-Lake Mead system.
 The tool gives each party more flexibility than current Colorado River operations to make individual water consumption, conservation, and reservoir storage decisions within the party's available water independent of other parties.
@@ -20,13 +20,12 @@ After you complete, please share feedback -- things you like, things to improve 
 
 ## Tool Organization
 The tool is organized as a spreadsheet.
- * Rows represent the components of an interactive water budget for Lake Powell-Lake Mead system. Interactive means some components of the water budget are physical data and calculations, other components are choices by the people who use the tool.
- * Columns represent years. Results from the end of one year carry on to the beginning of the next year.
- * Cell fill indicates the type of component:
-   * Peach fill, blue text: Physical watershed data (such as inflows and reservoir evaporation)
-   * Orange fill, white text: Political (player) decisions (such as individual water consumption and conservation),
-   * Grey fill: Calculations, and
-   * White fill: Facilitation steps.
+ * Rows represent the components of an interactive water budget for Lake Powell-Lake Mead system. Interactive means some components of the water budget (cell fill) are:
+   * Physical watershed data (Peach fill, blue text) such as inflows and reservoir evaporation,
+   * Political (player) decisions (Orange fill, white text) such as individual water consumption and conservation,
+   * Calculations (Grey fill), and
+   * Facilitation steps (White fill).
+ * Columns represent years. Each year has a natural inflow to Lake Powell, Grand Canyon Tributary flow (between Lake Powell and Lake Mead), and Natural flow between Hoover Dam and the US-Mexico boarder. Results from the end of one year carry on to the beginning of the next year.
 
 ## Requirements to Synchronously Use
 1. A Google account. [Create a Google account](https://accounts.google.com/signup/v2/webcreateaccount?hl=en&flowName=GlifWebSignIn&flowEntry=SignUp)
@@ -47,7 +46,7 @@ David E. Rosenberg (2021). "Pilot flex accounting to encourage more water conser
 
 ## Explanation of Contents
 1. **[PilotFlexAccounting-CombinedPowellMead.xlsx](https://github.com/dzeke/ColoradoRiverFutures/raw/master/PilotFlexAccounting/PilotFlexAccounting-CombinedPowellMead.xlsx)** - An Excel file with the pilot flex accounting tool and directions for the role play. For syncronous access by multiple players, download and move this file into a Google Sheet. See the ReadMe-Directions worksheet for directions.
-1. **[PilotFlexAccounting-CombinedPowellMead.xlsx](https://github.com/dzeke/ColoradoRiverFutures/raw/master/PilotFlexAccounting/PilotFlexAccounting-KeyIdeas.pptx)** - A Powerpoint file with 5 slides that show key ideas for the pilot flex accounting tool.
+1. **[PilotFlexAccounting-CombinedPowellMead.pptx](https://github.com/dzeke/ColoradoRiverFutures/raw/master/PilotFlexAccounting/PilotFlexAccounting-KeyIdeas.pptx)** - A Powerpoint file with 5 slides that show key ideas for the pilot flex accounting tool.
 1. **Hydrology** - Folder with Excel files used to generate hydrologic scenarios. CRB_29gages.xlsx: Listing of gages in the Colorado River basin used to estimate natural flow. NaturalFlows1906-2018_20200110.xlsx: Natural flow hydrology downloaded from the USBR website and modified to pick out particular 10- and 20- year sequences of flows from the observed and paleo reconstructed records.
 1. **OldVersions** - Folder with older versions of the interactive water budget.
 
