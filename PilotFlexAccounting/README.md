@@ -1,6 +1,6 @@
 # Pilot flex accounting to encourage more water conservation in a combined Lake Powell-Lake Mead system
 
-### [Quick link to Download Pilot flex accounting tool](https://github.com/dzeke/ColoradoRiverFutures/raw/master/PilotFlexAccounting/PilotFlexAccounting-CombinedPowellMead.xlsx)
+### Quick link to Download: [Pilot flex accounting tool](https://github.com/dzeke/ColoradoRiverFutures/raw/master/PilotFlexAccounting/PilotFlexAccounting-CombinedPowellMead.xlsx)
 
 This folder contains a pilot flex water accounting tool to encourage more water conservation in a combined Lake Powell-Lake Mead system.
 The tool gives each party more flexibility than current Colorado River operations to make individual water consumption, conservation, and reservoir storage decisions within the party's available water independent of other parties.
