@@ -1,10 +1,12 @@
 # Pilot flex accounting to encourage more water conservation in a combined Lake Powell-Lake Mead system
 
+[Quick link to Download](https://github.com/dzeke/ColoradoRiverFutures/raw/master/PilotFlexAccounting/PilotFlexAccounting-CombinedPowellMead.xlsx)
+
 This folder contains a pilot flex water accounting tool to encourage more water conservation in a combined Lake Powell-Lake Mead system.
 The tool gives each party more flexibility than current Colorado River operations to make individual water consumption, conservation, and reservoir storage decisions within the party's available water independent of other parties.
 Each party's available water is their account balance plus share of inflow, minus share of reservoir evaporation, plus water purchases, and minus water sales.
 
-Within the flex accounting, a "shared, reserve" account is added. Parties may only withdraw water from the shared, reserve account when all parties agree. This governance assumes that 
+Within the flex accounting, a "shared, reserve" account is added to prevent the parties from individually drawing down the combined reservoir storage to zero (dead pools). Parties may only withdraw water from the shared, reserve account when all parties agree. This rules assumes that 
 the parties will not all agree on a withdraw. Thus, the water will stay parked in the account as a buffer pool, check, and balance so the parties do not collectively through their individual consumption decisions draw down the combined reservoir storage to zero (dead pools).
 
 When the tool is moved into a Google sheet, role players representing the Upper Basin, Lower Basin, Mexico, and other parties can synchronously access and collaboratively use the tool. Players make their
