@@ -35,5 +35,5 @@ an alternative management paradigm where reservoir evaporation is counted as par
 ## Requested Citation
 David E. Rosenberg (2020). "Colorado River Futures - Code Projects". Utah State University. Logan, Utah. https://github.com/dzeke/ColoradoRiverFutures.
 
-##This repository is no longer active
+## This repository is no longer active
 Find current coding efforts at: https://github.com/dzeke/ColoradoRiverCoding.
